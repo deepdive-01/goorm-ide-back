@@ -3,8 +3,6 @@ spring:
     active: local
 
   jpa:
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
     properties:
