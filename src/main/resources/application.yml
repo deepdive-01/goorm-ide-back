@@ -1,7 +1,6 @@
 spring:
   profiles:
     active: local
-
   jpa:
     hibernate:
       ddl-auto: none
@@ -9,6 +8,18 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 
   jackson:
     property-naming-strategy: SNAKE_CASE
@@ -19,7 +30,7 @@ server:
 
 jwt:
   secret: ${JWT_SECRET:your-secret-key-must-be-at-least-32-chars-long}
-  access-expiration: 1800000     # 30분 (ms)
+  access-expiration: 3600000 # 1시간 (ms)
   refresh-expiration: 604800000  # 7일 (ms)
 
 logging:
