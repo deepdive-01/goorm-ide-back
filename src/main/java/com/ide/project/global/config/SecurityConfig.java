@@ -1,6 +1,7 @@
 package com.ide.project.global.config;
 
 import com.ide.project.global.security.filter.JwtAuthenticationFilter;
+import com.ide.project.global.security.oauth2.handler.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +25,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -34,9 +35,13 @@ public class SecurityConfig {
                         // 인증 없이 접근 가능한 엔드포인트
                         .requestMatchers(
                                 "/api/v1/auth/email/send",
-                                "/api/v1/auath/email/verify",
+                                "/api/v1/auth/email/verify",
                                 "/api/v1/auth/signup",
-                                "/api/v1/auth/refresh"
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/refresh",
+                                "/api/v1/auth/oauth/signup",
+                                "/oauth2/authorization/**",
+                                "/login/oauth2/code/**"
                         ).permitAll()
                         // Swagger UI
                         .requestMatchers(
@@ -46,6 +51,8 @@ public class SecurityConfig {
                         // 나머지 요청은 인증을 요구
                         .anyRequest().authenticated()
                 )
+                // 소셜 로그인 설정, 인증 완료 후 OAuth2SuccessHandler 실행
+                .oauth2Login(oauth2 -> oauth2.successHandler(oAuth2SuccessHandler))
                 // JWT 필터를 등록
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
