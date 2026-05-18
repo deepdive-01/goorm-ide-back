@@ -1,13 +1,11 @@
 package com.ide.project.domain.auth.controller;
 
-import com.ide.project.domain.auth.dto.request.EmailSendRequest;
-import com.ide.project.domain.auth.dto.request.EmailVerifyRequest;
-import com.ide.project.domain.auth.dto.request.LoginRequest;
-import com.ide.project.domain.auth.dto.request.SignupRequest;
+import com.ide.project.domain.auth.dto.request.*;
 import com.ide.project.domain.auth.dto.response.SignupResponse;
 import com.ide.project.domain.auth.dto.response.TokenResponse;
 import com.ide.project.domain.auth.service.AuthService;
 import com.ide.project.domain.auth.service.EmailVerifyService;
+import com.ide.project.domain.auth.service.OAuthSignupService;
 import com.ide.project.domain.auth.service.SignupService;
 import com.ide.project.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +28,7 @@ public class AuthController {
     private final AuthService authService;
     private final SignupService signupService;
     private final EmailVerifyService emailVerifyService;
+    private final OAuthSignupService oAuthSignupService;
 
     // POST /api/v1/auth/email/send  이메일 인증코드 발송
     @PostMapping("/email/send")
@@ -99,5 +98,18 @@ public class AuthController {
     ) {
         TokenResponse tokenResponse = authService.reissue(refreshToken);;
         return ResponseEntity.ok(ApiResponse.success(200, "SUCESS", "토큰이 재발급 되었습니다.", tokenResponse));
+    }
+
+    // POST /api/v1/auth/oauth/signup 소셜 신규 유저 추가 정보 입력
+    // tempKey로 Redis에서 providerId, nickname을 꺼내, User + OauthAccount를 생성합니다.
+    @PostMapping("/oauth/signup")
+    public ResponseEntity<ApiResponse<TokenResponse>> oauthSignup(
+            @Valid
+            @RequestBody
+            OAuthSignupRequest request,
+            HttpServletResponse response
+    ) {
+        TokenResponse tokenResponse = oAuthSignupService.signup(request, response);
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "회원가입이 완료되었습니다.", tokenResponse));
     }
 }
