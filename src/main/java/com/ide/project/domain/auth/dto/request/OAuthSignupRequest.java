@@ -1,5 +1,6 @@
 package com.ide.project.domain.auth.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ide.project.domain.user.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -7,7 +8,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record OAuthSignupRequest (
 
+
         // 임시 키
+        @JsonProperty("temp_key")
         @NotBlank
         String tempKey,
 
