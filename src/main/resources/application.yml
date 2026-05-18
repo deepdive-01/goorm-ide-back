@@ -56,3 +56,12 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
+
+app:
+  cookie:
+    secure: true
+    same-site: None
+  oauth:
+    redirect-url:
+      success: ${OAUTH_REDIRECT_SUCCESS_URL}
+      signup: ${OAUTH_REDIRECT_SIGNUP_URL}

@@ -13,4 +13,7 @@ public final class RedisKeys {
 
     // 리프레시 토큰 키 - "refresh:{userId}" 형태로 사용
     public static final String REFRESH_TOKEN = "refresh:";
+
+    // 소셜 신규 유저 임시 데이터 키 - "oauth:temp:{UUID}" 형태로 사용
+    public static final String OAUTH_TEMP = "oauth:temp:";
 }

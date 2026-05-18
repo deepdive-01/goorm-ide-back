@@ -23,6 +23,10 @@ public enum ErrorCode {
     EXPIRED_REFRESH_TOKEN(401, "만료된 토큰입니다."),
     REVOKED_REFRESH_TOKEN(401, "이미 로그아웃된 토큰입니다."),
 
+    UNSUPPORTED_OAUTH_PROVIDER(400, "지원하지 않는 소셜 로그인입니다."),
+    OAUTH_TEMP_EXPIRED(400, "소셜 로그인 세션이 만료되었습니다. 다시 시도해주세요."),
+
+
     INACTIVE_USER(403, "비활성화된 계정입니다."),
     FORBIDDEN(403, "권한이 없습니다."),
     ACCESS_DENIED(403, "접근 권한이 없습니다."),
