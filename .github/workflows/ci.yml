@@ -26,5 +26,8 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
 
-      - name: 빌드 확인 (테스트 제외)
+      - name: 단위 테스트 실행
+        run: ./gradlew test --no-daemon
+
+      - name: 빌드 확인
         run: ./gradlew build -x test --no-daemon
