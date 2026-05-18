@@ -52,6 +52,9 @@ public class SignupService {
                 .loginType(LoginType.LOCAL)
                 .build();
 
+        // 이메일 인증을 완료한 유저이므로 인증 완료 처리
+        user.verifyEmail();
+
         // 저장된 유저를 레포를 통해 DB로 저장
         User savedUser = userRepository.save(user);
 

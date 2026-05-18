@@ -72,4 +72,14 @@ public class User {
         this.emailVerified = false;
         this.active = true;
     }
+
+    // 이메일 인증 완료 처리
+    public void verifyEmail() {
+        this.emailVerified = true;
+    }
+
+    // 회원 탈퇴 처리 (소프트 삭제 - DB에서 지우지 않고 비활성화만 함)
+    public void deactivate() {
+        this.active = false;
+    }
 }
