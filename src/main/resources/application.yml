@@ -26,3 +26,15 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
+
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  api-docs:
+    path: /api-docs      # Open-API 스펙이 JSON 형태로 떨어지는 경로
+  swagger-ui:
+    path: /swagger-ui.html  # 웹 브라우저에서 접근할 스웨거 화면 주소
+    groups-order: ASC
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true  # API 호출 시 소요 시간 표시 기능 활성화
