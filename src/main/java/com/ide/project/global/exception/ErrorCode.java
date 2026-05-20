@@ -44,7 +44,12 @@ public enum ErrorCode {
 
     // 알림
     NOTIFICATION_NOT_FOUND(404, "알림을 찾을 수 없습니다."),
-    INVALID_NOTIFICATION_TYPE(400, "유효하지 않은 알림 타입입니다.");
+    INVALID_NOTIFICATION_TYPE(400, "유효하지 않은 알림 타입입니다."),
+
+    // 타이머
+    TIMER_ALREADY_RUNNING(400, "이미 실행 중인 타이머가 있습니다."),
+    TIMER_NOT_FOUND(404, "실행 중인 타이머가 없습니다."),
+    ROOM_NOT_FOUND(404, "워크스페이스를 찾을 수 없습니다.");
 
     private final int status;
     private final String message;
