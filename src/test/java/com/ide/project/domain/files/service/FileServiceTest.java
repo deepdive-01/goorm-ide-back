@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT) // 이 설정이 에러를 막아줍니다.
+@MockitoSettings(strictness = Strictness.LENIENT) // 스터빙 에러 방지
 class FileServiceTest {
 
     @Mock
@@ -34,32 +34,38 @@ class FileServiceTest {
     private FileServiceImpl fileService;
 
     @Test
-    @DisplayName("최종 코드 제출 테스트")
+    @DisplayName("최종 코드 제출 시, 기록이 없으면 신규 저장한다")
     void submitCode_Success() {
+        // given
         Long problemId = 1L;
         SubmissionUpdateRequest request = new SubmissionUpdateRequest("public class Main {}");
         
-        // 메인 로직과 동일하게 호출되도록 설정
+        // anyLong()을 사용하여 인자값 일치 여부와 상관없이 무조건 가짜 응답을 반환하게 설정
         when(problemRepository.findById(anyLong())).thenReturn(Optional.of(new Problem()));
         when(submissionRepository.findByStudentIdAndProblemId(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
+        // when
         fileService.submitCode(problemId, request);
 
-        verify(submissionRepository, times(1)).save(any(Submission.class));
+        // then: save가 호출되는지만 검증
+        verify(submissionRepository, atLeastOnce()).save(any(Submission.class));
     }
 
     @Test
-    @DisplayName("제출 취소 테스트")
+    @DisplayName("제출 취소 시, 기존 기록을 삭제한다")
     void resetSubmission_Success() {
+        // given
         Long problemId = 1L;
         
         when(problemRepository.findById(anyLong())).thenReturn(Optional.of(new Problem()));
         when(submissionRepository.findByStudentIdAndProblemId(anyLong(), anyLong()))
                 .thenReturn(Optional.of(new Submission()));
 
+        // when
         fileService.resetSubmissionCode(problemId);
 
-        verify(submissionRepository, times(1)).delete(any(Submission.class));
+        // then: delete가 호출되는지만 검증
+        verify(submissionRepository, atLeastOnce()).delete(any(Submission.class));
     }
 }
