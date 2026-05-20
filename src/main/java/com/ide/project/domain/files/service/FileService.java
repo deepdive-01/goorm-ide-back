@@ -25,10 +25,9 @@ public class FileService {
     @Transactional
     public Long assignProblemToSpace(ProblemAssignRequest request) {
         ProblemBank bank = problemBankRepository.findById(request.getProblemBankId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 원본 문제가 존재하지 않습니다. ID: " + request.getProblemBankId()));
-
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
         Space space = spaceRepository.findById(request.getSpaceId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 스페이스가 존재하지 않습니다. ID: " + request.getSpaceId()));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         Problem newProblem = new Problem();
         newProblem.setSpace(space);
@@ -60,7 +59,7 @@ public class FileService {
     @Transactional
     public Long createAndAssignProblem(Long spaceId, ProblemCreateRequest request) {
         Space space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 스페이스가 존재하지 않습니다. ID: " + spaceId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         Problem customProblem = new Problem();
         customProblem.setSpace(space);
@@ -83,7 +82,7 @@ public class FileService {
     public ProblemResponse getProblemDetails(Long problemId) {
         // 워크스페이스 문제 테이블(problems)에서 엔티티를 찾고, 없으면 예외를 던져 방어
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 문제가 워크스페이스에 존재하지 않습니다. ID: " + problemId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         // 데이터베이스에서 가져온 순수 엔티티(Entity) 객체를 안전한 응답용 DTO 객체로 변환하여 리턴
         return new ProblemResponse(
@@ -102,7 +101,7 @@ public class FileService {
     public void updateProblemCode(Long problemId, com.ide.project.domain.files.dto.CodeUpdateRequest request) {
         // 수정할 대상 문제가 워크스페이스에 존재하는지 검증 및 조회합니다.
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 문제가 워크스페이스에 존재하지 않습니다. ID: " + problemId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         // 엔티티의 필드를 수정 (JPA의 영속성 컨텍스트 덕분에 트랜잭션 종료 시 자동으로 DB에 UPDATE 쿼리가 날아갑니다.)
         problem.setStarterCode(request.getModifiedCode());
@@ -114,7 +113,7 @@ public class FileService {
     public void updateProblem(Long problemId, com.ide.project.domain.files.dto.ProblemUpdateRequest request) {
         // 수정할 대상 문제가 존재하는지 검증 및 조회
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 문제가 워크스페이스에 존재하지 않습니다. ID: " + problemId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         // 강사가 입력한 새로운 데이터로 엔티티의 값을 변경 (Dirty Checking 작동)
         problem.setTitle(request.getTitle());
@@ -130,7 +129,7 @@ public class FileService {
     public void deleteProblem(Long problemId) {
         // 삭제할 대상 문제가 존재하는지 먼저 확인
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 문제가 워크스페이스에 존재하지 않습니다. ID: " + problemId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         // 데이터베이스 레포지토리를 통해 해당 문제를 완전 제거
         // (주의: 엔티티 설계 상의 영속성 전이(Cascade) 설정에 따라 연관된 데이터가 함께 정리됩니다.)
@@ -143,7 +142,7 @@ public class FileService {
     public void updateSubmissionCode(Long problemId, com.ide.project.domain.files.dto.SubmissionUpdateRequest request) {
         // 학생의 워크스페이스 문제를 조회
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 문제가 워크스페이스에 존재하지 않습니다. ID: " + problemId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         // 코드를 새롭게 변경하여 반영 (Dirty Checking 작동)
         problem.setStarterCode(request.getReSubmittedCode());
@@ -155,12 +154,12 @@ public class FileService {
     public void resetSubmissionCode(Long problemId) {
         // 초기화할 대상 문제를 조회
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 문제가 워크스페이스에 존재하지 않습니다. ID: " + problemId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
 
         // 연관된 원본 문제 은행(ProblemBank)에서 최초의 스타터 코드를 추출
         ProblemBank bank = problem.getProblemBank();
         if (bank == null) {
-            throw new IllegalStateException("해당 문제는 원본 문제 은행 정보가 없어 초기화할 수 없습니다.");
+            throw new BusinessException(ErrorCode.PROBLEM_NOT_FOUND);
         }
 
         // 학생의 코딩창을 최초 원본 스타터 코드로 원상복구(초기화).
@@ -173,8 +172,7 @@ public class FileService {
     public Long addTestCase(Long problemId, com.ide.project.domain.files.dto.TestCaseCreateRequest request) {
         // 테스트케이스를 연결할 대상 문제를 조회합니다.
         Problem problem = problemRepository.findById(problemId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 문제가 워크스페이스에 존재하지 않습니다. ID: " + problemId));
-
+                .orElseThrow(() -> new BusinessException(ErrorCode.PROBLEM_NOT_FOUND));
         // 새로운 TestCase 엔티티를 생성하고 데이터를 바인딩합니다.
         TestCase testCase = new TestCase();
         testCase.setProblem(problem);
