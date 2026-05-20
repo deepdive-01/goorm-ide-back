@@ -19,7 +19,7 @@ public class FileController {
 
     private final FileService fileService;
 
-    @Operation(summary = "문제 은행에서 워크스페이스로 문제 할당 및 복사")
+    @Operation(summary = "ProblemBank에서 워크스페이스로 문제 할당 및 복사")
     @PostMapping("/problems")
     public ResponseEntity<ApiResponse<Long>> assignProblem(@Valid @RequestBody ProblemAssignRequest request) {
         Long assignedProblemId = fileService.assignProblemToSpace(request);
@@ -67,13 +67,19 @@ public class FileController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "OK", "문제 삭제 성공"));
     }
 
-    @Operation(summary = "학생 권한 최종 제출 코드 수정 및 재제출")
-    @PatchMapping("/problems/{problemId}/resubmit")
-    public ResponseEntity<ApiResponse<Void>> updateSubmissionByStudent(
+    @Operation(summary = "학생 권한 코드 최종 제출", description = "학생이 작성한 코드를 최종 제출합니다. 최초 제출 시 새로운 기록을 생성하고, 이미 기록이 있다면 최신 코드로 덮어씁니다.")
+    @PostMapping("/problems/{problemId}/submit")
+    public ResponseEntity<ApiResponse<Void>> submitProblemCode(
             @PathVariable Long problemId,
             @RequestBody SubmissionUpdateRequest request) {
-        fileService.updateSubmissionCode(problemId, request);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "OK", "코드 재제출 성공"));
+        
+        fileService.submitCode(problemId, request);
+        
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK.value(), 
+                "OK", 
+                "코드가 성공적으로 제출되었습니다."
+        ));
     }
 
     @Operation(summary = "학생 권한 최종 제출 취소 및 코드 초기화")
