@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: local
+
   jpa:
     hibernate:
       ddl-auto: none
@@ -8,6 +9,11 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: non_null
+
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
@@ -20,6 +26,7 @@ spring:
           starttls:
             enable: true
             required: true
+
   security:
     oauth2:
       client:
@@ -39,7 +46,6 @@ spring:
             scope:
               - email
               - profile
-
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -47,16 +53,12 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
-  jackson:
-    property-naming-strategy: SNAKE_CASE
-    default-property-inclusion: non_null
-
 server:
   port: 8080
 
 jwt:
   secret: ${JWT_SECRET:your-secret-key-must-be-at-least-32-chars-long}
-  access-expiration: 3600000 # 1시간 (ms)
+  access-expiration: 3600000     # 1시간 (ms)
   refresh-expiration: 604800000  # 7일 (ms)
 
 logging:
@@ -64,11 +66,19 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql.BasicBinder: trace
 
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  api-docs:
+    path: /api-docs      # Open-API 스펙이 JSON 형태로 떨어지는 경로
+  swagger-ui:
+    path: /swagger-ui.html  # 웹 브라우저에서 접근할 스웨거 화면 주소
+    groups-order: ASC
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true  # API 호출 시 소요 시간 표시 기능 활성화
+
 app:
   cookie:
     secure: true
     same-site: None
-  oauth:
-    redirect-url:
-      success: ${OAUTH_REDIRECT_SUCCESS_URL}
-      signup: ${OAUTH_REDIRECT_SIGNUP_URL}
