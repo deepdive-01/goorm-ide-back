@@ -36,6 +36,9 @@ public class Problem {
     @Column(name = "starter_code", columnDefinition = "TEXT")
     private String starterCode;
 
+    @Column(name = "creator_id", nullable = false)
+    private Long creatorId;
+
     // 문제의 전체 지문 및 정보 수정을 위한 비즈니스 메서드 (JPA Dirty Checking 적용)
     public void updateDetails(String title, String description, String difficulty, String starterCode) {
         this.title = title;
