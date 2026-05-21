@@ -1,17 +1,28 @@
 package com.ide.project.domain.files.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.ide.project.domain.files.entity.Problem;
+import java.time.LocalDateTime;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProblemResponse {
-    
-    private Long id;
-    private String title;
-    private String description;
-    private String difficulty;
-    private String starterCode;
+public record ProblemResponse(
+    Long id,
+    String title,
+    String description,
+    String difficulty,
+    String language,
+    String starterCode,
+    boolean isPublished,
+    LocalDateTime createdAt
+) {
+    public static ProblemResponse from(Problem problem) {
+        return new ProblemResponse(
+            problem.getId(),
+            problem.getTitle(),
+            problem.getDescription(),
+            problem.getDifficulty(),
+            problem.getLanguage(),
+            problem.getStarterCode(),
+            problem.isPublished(),
+            problem.getCreatedAt()
+        );
+    }
 }

@@ -2,16 +2,15 @@ package com.ide.project.domain.files.controller;
 
 import com.ide.project.domain.files.dto.*;
 import com.ide.project.domain.files.service.FileService;
-import com.ide.project.global.response.ApiResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.ide.project.global.response.ApiResponse; 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
 
-@Tag(name = "01. File & Problem Management", description = "학생 워크스페이스 문제 할당 및 에디터 로드 관련 API 명세서")
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/files")
 @RequiredArgsConstructor
@@ -19,90 +18,75 @@ public class FileController {
 
     private final FileService fileService;
 
-    @Operation(summary = "ProblemBank에서 워크스페이스로 문제 할당 및 복사")
+    // ==========================================
+    // 문제 관리 API
+    // ==========================================
+
+    
+     // 강사가 새로운 문제를 생성합니다.
+     
     @PostMapping("/problems")
-    public ResponseEntity<ApiResponse<Long>> assignProblem(@Valid @RequestBody ProblemAssignRequest request) {
-        Long assignedProblemId = fileService.assignProblemToSpace(request);
+    public ResponseEntity<ApiResponse<ProblemResponse>> createProblem(@Valid @RequestBody ProblemCreateRequest request) {
+        ProblemResponse response = fileService.createProblem(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(HttpStatus.CREATED.value(), "CREATED", "문제 할당 성공", assignedProblemId));
+                .body(ApiResponse.success(201, "SUCCESS", "문제가 성공적으로 생성되었습니다.", response));
     }
 
-    @Operation(summary = "강사 맞춤형 문제 직접 생성 및 할당")
-    @PostMapping("/problems/custom")
-    public ResponseEntity<ApiResponse<Long>> createAndAssignProblem(@Valid @RequestBody ProblemCreateRequest request) {
-        Long customProblemId = fileService.createAndAssignProblem(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(HttpStatus.CREATED.value(), "CREATED", "맞춤형 문제 생성 성공", customProblemId));
+    
+     // 기존 문제의 내용(지문, 난이도, 언어 등)을 수정합니다.
+    
+    @PutMapping("/problems/{problemId}")
+    public ResponseEntity<ApiResponse<ProblemResponse>> updateProblem(
+            @PathVariable Long problemId,
+            @Valid @RequestBody ProblemUpdateRequest request) {
+        ProblemResponse response = fileService.updateProblem(problemId, request);
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "문제가 성공적으로 수정되었습니다.", response));
     }
 
-    @Operation(summary = "워크스페이스 문제 상세 정보 로드")
+   
+     // 문제 은행에 있는 원본 문제를 강사의 워크스페이스로 복사하여 배정합니다.
+    
+    @PostMapping("/problems/assign")
+    public ResponseEntity<ApiResponse<ProblemResponse>> assignProblemFromBank(@Valid @RequestBody ProblemAssignRequest request) {
+        ProblemResponse response = fileService.assignProblemFromBank(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(201, "SUCCESS", "문제 은행에서 문제가 성공적으로 배정되었습니다.", response));
+    }
+
+    
+     // 특정 문제의 상세 정보를 조회합니다.
+    
     @GetMapping("/problems/{problemId}")
     public ResponseEntity<ApiResponse<ProblemResponse>> getProblemDetails(@PathVariable Long problemId) {
-        ProblemResponse problemResponse = fileService.getProblemDetails(problemId);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "OK", "문제 상세 정보 로드 성공", problemResponse));
+        ProblemResponse response = fileService.getProblemDetails(problemId);
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "문제 상세 정보 조회에 성공하였습니다.", response));
     }
 
-    @Operation(summary = "학생 소스코드 수정 및 임시 저장")
-    @PatchMapping("/problems/{problemId}/code")
-    public ResponseEntity<ApiResponse<Void>> updateCode(
-            @PathVariable Long problemId,
-            @RequestBody CodeUpdateRequest request) {
-        fileService.updateProblemCode(problemId, request);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "OK", "코드 임시 저장 성공"));
-    }
+    // 테스트케이스 관리 API
 
-    @Operation(summary = "강사 권한 워크스페이스 문제 수정")
-    @PatchMapping("/problems/{problemId}")
-    public ResponseEntity<ApiResponse<Void>> updateProblemByTeacher(
-            @PathVariable Long problemId,
-            @RequestBody ProblemUpdateRequest request) {
-        fileService.updateProblem(problemId, request);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "OK", "문제 수정 성공"));
-    }
-
-    @Operation(summary = "강사 권한 워크스페이스 문제 삭제")
-    @DeleteMapping("/problems/{problemId}")
-    public ResponseEntity<ApiResponse<Void>> deleteProblemByTeacher(@PathVariable Long problemId) {
-        fileService.deleteProblem(problemId);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "OK", "문제 삭제 성공"));
-    }
-
-    @Operation(summary = "학생 권한 코드 최종 제출", description = "학생이 작성한 코드를 최종 제출합니다. 최초 제출 시 새로운 기록을 생성하고, 이미 기록이 있다면 최신 코드로 덮어씁니다.")
-    @PostMapping("/problems/{problemId}/submit")
-    public ResponseEntity<ApiResponse<Void>> submitProblemCode(
-            @PathVariable Long problemId,
-            @RequestBody SubmissionUpdateRequest request) {
-        
-        fileService.submitCode(problemId, request);
-        
-        return ResponseEntity.ok(ApiResponse.success(
-                HttpStatus.OK.value(), 
-                "OK", 
-                "코드가 성공적으로 제출되었습니다."
-        ));
-    }
-
-    @Operation(summary = "학생 권한 최종 제출 취소 및 코드 초기화")
-    @DeleteMapping("/problems/{problemId}/reset")
-    public ResponseEntity<ApiResponse<Void>> deleteSubmissionByStudent(@PathVariable Long problemId) {
-        fileService.resetSubmissionCode(problemId);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "OK", "코드 초기화 성공"));
-    }
-
-    @Operation(summary = "채점용 테스트케이스 추가")
+    
+     // 특정 문제에 대한 테스트케이스 목록을 일괄 저장합니다.
+    
     @PostMapping("/problems/{problemId}/testcases")
-    public ResponseEntity<ApiResponse<Long>> addTestCaseByTeacher(
+    public ResponseEntity<ApiResponse<Void>> saveTestCases(
             @PathVariable Long problemId,
-            @RequestBody TestCaseCreateRequest request) {
-        Long testCaseId = fileService.addTestCase(problemId, request);
+            @Valid @RequestBody List<TestCaseCreateRequest> testCaseRequests) {
+        fileService.saveTestCases(problemId, testCaseRequests);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(HttpStatus.CREATED.value(), "CREATED", "테스트케이스 추가 성공", testCaseId));
+                .body(ApiResponse.success(201, "SUCCESS", "테스트케이스가 성공적으로 저장되었습니다."));
     }
 
-    @Operation(summary = "특정 테스트케이스 개별 삭제")
-    @DeleteMapping("/testcases/{testCaseId}")
-    public ResponseEntity<ApiResponse<Void>> deleteTestCaseByTeacher(@PathVariable Long testCaseId) {
-        fileService.deleteTestCase(testCaseId);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "OK", "테스트케이스 삭제 성공"));
+    // 코드 제출 및 저장 API
+
+     // 학생이 작성한 코드를 임시 저장하거나 최종 제출(채점 요청)합니다.
+
+    @PostMapping("/submissions")
+    public ResponseEntity<ApiResponse<Void>> submitCode(@Valid @RequestBody SubmissionRequest request) {
+        fileService.submitCode(request);
+        
+        // request 내부의 최종 제출 여부(isFinalSubmit)에 따라 다르게 나갈 메시지 동적 처리 가능
+        String message = request.isFinalSubmit() ? "코드가 성공적으로 제출되었습니다." : "코드가 성공적으로 임시 저장되었습니다.";
+        
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", message));
     }
 }
