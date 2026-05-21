@@ -7,6 +7,9 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
+
 
 @Configuration
 public class SwaggerConfig {
@@ -29,6 +32,15 @@ public class SwaggerConfig {
                         .description("IDE 프로젝트 API 명세서")
                         .version("v1"))
                 .components(new Components().addSecuritySchemes("bearerAuth", bearerAuth))
-                .addSecurityItem(securityRequirement);
+                .addSecurityItem(securityRequirement)
+                .servers(List.of(                                              // ← 추가
+                    new Server()
+                            .url("https://apicoderun-dev.leeseh0806.com")
+                            .description("Dev Server"),
+                    new Server()
+                            .url("https://apicoderun.leeseh0806.com")
+                            .description("Prod Server")
+                ));
+
     }
 }
