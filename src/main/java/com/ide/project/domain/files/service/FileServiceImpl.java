@@ -25,9 +25,7 @@ public class FileServiceImpl implements FileService {
     private final TestCaseRepository testCaseRepository;
     private final SubmissionRepository submissionRepository;
 
-
     // 문제 관리 비즈니스 로직
-
 
     @Override
     @Transactional
@@ -70,11 +68,11 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public ProblemResponse assignProblemFromBank(ProblemAssignRequest request) {
-        //  원본 문제 은행 데이터 조회
+        // 원본 문제 은행 데이터 조회
         ProblemBank bankProblem = problemBankRepository.findById(request.problemBankId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 문제 은행 원본을 찾을 수 없습니다."));
 
-        //  내 워크스페이스 문제로 복사
+        // 내 워크스페이스 문제로 복사
         Problem problem = Problem.builder()
                 .spaceId(request.spaceId())
                 .createdBy(request.createdBy())
@@ -98,9 +96,7 @@ public class FileServiceImpl implements FileService {
         return ProblemResponse.from(problem);
     }
 
-
     // 테스트케이스 비즈니스 로직
-
 
     @Override
     @Transactional
@@ -123,9 +119,7 @@ public class FileServiceImpl implements FileService {
         testCaseRepository.saveAll(testCases);
     }
 
-
     // 제출 기록 비즈니스 로직
-
 
     @Override
     @Transactional
