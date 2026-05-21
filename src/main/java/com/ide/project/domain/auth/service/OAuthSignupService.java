@@ -53,7 +53,7 @@ public class OAuthSignupService {
                 .email(request.email())
                 .password(null)
                 .name(request.name())
-                .nickname(nickname)
+                .nickname(request.nickname())
                 .role(request.role())
                 .loginType(LoginType.SOCIAL)
                 .build();
