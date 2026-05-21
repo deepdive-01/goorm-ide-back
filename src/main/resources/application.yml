@@ -10,6 +10,12 @@ spring:
         format_sql: true
     open-in-view: false
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
   jackson:
     property-naming-strategy: SNAKE_CASE
     default-property-inclusion: non_null
@@ -70,7 +76,7 @@ springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
   api-docs:
-    path: /api-docs      # Open-API 스펙이 JSON 형태로 떨어지는 경로
+    path: /v3/api-docs      # Open-API 스펙이 JSON 형태로 떨어지는 경로
   swagger-ui:
     path: /swagger-ui.html  # 웹 브라우저에서 접근할 스웨거 화면 주소
     groups-order: ASC
