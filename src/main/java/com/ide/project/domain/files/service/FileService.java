@@ -1,26 +1,11 @@
 package com.ide.project.domain.files.service;
 
-import com.ide.project.domain.files.dto.*;
+import com.ide.project.domain.files.dto.CodeUpdateRequest;
+import com.ide.project.domain.files.dto.ProblemCreateRequest;
+import com.ide.project.domain.files.dto.ProblemResponse;
 
 public interface FileService {
-    
-    Long assignProblemToSpace(ProblemAssignRequest request);
-    
-    Long createAndAssignProblem(ProblemCreateRequest request);
-    
+    ProblemResponse createProblem(ProblemCreateRequest request);
+    void updateCodeSubmission(CodeUpdateRequest request);
     ProblemResponse getProblemDetails(Long problemId);
-    
-    void updateProblemCode(Long problemId, CodeUpdateRequest request);
-    
-    void updateProblem(Long problemId, ProblemUpdateRequest request);
-    
-    void deleteProblem(Long problemId);
-    
-    void submitCode(Long problemId, SubmissionUpdateRequest request);
-    
-    void resetSubmissionCode(Long problemId);
-    
-    Long addTestCase(Long problemId, TestCaseCreateRequest request);
-    
-    void deleteTestCase(Long testCaseId);
 }
