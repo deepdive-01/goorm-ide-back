@@ -46,14 +46,13 @@ public class OAuthSignupService {
         String[] parts = tempValue.split("::", -1);
         Provider provider = Provider.valueOf(parts[0]);
         String providerId = parts[1];
-        String nickname = parts[2];
 
         // 유저 정보 저장
         User user = User.builder()
                 .email(request.email())
                 .password(null)
                 .name(request.name())
-                .nickname(nickname)
+                .nickname(request.nickname())
                 .role(request.role())
                 .loginType(LoginType.SOCIAL)
                 .build();
