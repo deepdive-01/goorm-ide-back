@@ -24,6 +24,10 @@ public record OAuthSignupRequest (
         @NotBlank
         String name,
 
+        @Schema(description = "닉네임", example = "구르미")
+        @NotBlank
+        String nickname,
+
         @Schema(description = "역할 (STUDENT 또는 MENTOR)", example = "STUDENT")
         @NotNull
         Role role
