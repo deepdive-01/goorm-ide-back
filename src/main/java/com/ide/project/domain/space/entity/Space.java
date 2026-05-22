@@ -3,6 +3,7 @@ package com.ide.project.domain.space.entity;
 import com.ide.project.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -48,6 +49,24 @@ public class Space {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    // 원하는 값만 노출하기 위한 builder
+    @Builder
+    public Space(User mentor, String name, String description, String inviteCode) {
+        this.mentor = mentor;
+        this.name = name;
+        this.description = description;
+        this.inviteCode = inviteCode;
+        this.isPublic = false;
+        this.isActive = true;
+    }
+
+    // 업데이트때 사용
+    public void update(String name, String description, Boolean isActive) {
+        if (name != null) this.name = name;
+        if (description != null) this.description = description;
+        if (isActive != null) this.isActive = isActive;
+    }
 
 }
 
