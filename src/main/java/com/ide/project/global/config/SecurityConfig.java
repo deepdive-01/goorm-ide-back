@@ -41,7 +41,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/refresh",
                                 "/api/v1/auth/oauth/signup",
                                 "/oauth2/authorization/**",
-                                "/login/oauth2/code/**"
+                                "/login/oauth2/code/**",
+                                "/feedback-test.html"
                         ).permitAll()
                         // Swagger UI
                         .requestMatchers(

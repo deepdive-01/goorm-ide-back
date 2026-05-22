@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>피드백 API 테스트</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f0f0f; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; font-size: 14px; }
+
+    .header { background: #1a1a1a; border-bottom: 1px solid #2c2c2c; padding: 12px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .header h1 { font-size: 16px; color: #4ecdc4; margin-right: 8px; }
+    .header input { background: #2c2c2c; border: 1px solid #3c3c3c; color: #e0e0e0; padding: 6px 10px; border-radius: 6px; font-size: 13px; }
+    .header input#jwt { width: 320px; }
+    .header input#sub-id { width: 120px; }
+    .header button { background: #4ecdc4; color: #0f0f0f; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .header button:hover { background: #3dbdb4; }
+    .header button.danger { background: #f44336; color: #fff; }
+
+    .main { display: flex; height: calc(100vh - 54px); }
+
+    /* 왼쪽: 코드 패널 */
+    .code-panel { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #2c2c2c; overflow: hidden; }
+    .code-panel-header { background: #1a1a1a; padding: 10px 16px; font-size: 12px; color: #9e9e9e; border-bottom: 1px solid #2c2c2c; display: flex; justify-content: space-between; align-items: center; }
+    .code-panel-header span b { color: #4ecdc4; }
+    .code-area { display: flex; flex-direction: column; overflow-y: auto; flex: 1; }
+
+    .code-line { display: flex; align-items: stretch; min-height: 26px; cursor: pointer; position: relative; }
+    .code-line:hover { background: rgba(78,205,196,0.05); }
+    .code-line.selected-start { background: rgba(255,107,107,0.15); }
+
+    .line-num { width: 44px; min-width: 44px; text-align: right; padding: 4px 10px 4px 0; color: #616161; font-family: monospace; font-size: 13px; user-select: none; border-right: 1px solid #2c2c2c; }
+    .line-content { flex: 1; padding: 4px 12px; font-family: 'Courier New', monospace; font-size: 13px; white-space: pre; line-height: 18px; }
+    .line-indicator { width: 24px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #4ecdc4; }
+
+    .highlight-yellow .line-content { background: rgba(255,235,59,0.12); border-left: 3px solid #ffeb3b; }
+    .highlight-red    .line-content { background: rgba(244,67,54,0.12); border-left: 3px solid #f44336; }
+    .highlight-green  .line-content { background: rgba(76,175,80,0.12); border-left: 3px solid #4caf50; }
+    .highlight-blue   .line-content { background: rgba(33,150,243,0.12); border-left: 3px solid #2196f3; }
+
+    /* 코드 입력 textarea */
+    .code-input-area { padding: 10px 16px; border-bottom: 1px solid #2c2c2c; background: #1a1a1a; }
+    .code-input-area textarea { width: 100%; background: #111; color: #e0e0e0; border: 1px solid #3c3c3c; padding: 8px; font-family: monospace; font-size: 13px; border-radius: 6px; resize: vertical; min-height: 60px; }
+    .code-input-area .row { display: flex; gap: 8px; margin-top: 6px; align-items: center; }
+    .code-input-area label { font-size: 12px; color: #9e9e9e; }
+
+    /* 오른쪽: 피드백 패널 */
+    .feedback-panel { width: 360px; min-width: 320px; display: flex; flex-direction: column; overflow: hidden; }
+
+    .fb-section { border-bottom: 1px solid #2c2c2c; }
+    .fb-section-title { background: #1a1a1a; padding: 10px 16px; font-size: 12px; color: #9e9e9e; display: flex; justify-content: space-between; }
+    .fb-section-title span { color: #4ecdc4; font-weight: 600; font-size: 13px; }
+    .fb-list { padding: 10px; max-height: 260px; overflow-y: auto; }
+    .fb-item { background: #1a1a1a; border: 1px solid #2c2c2c; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; position: relative; }
+    .fb-item-badge { display: inline-block; background: #4ecdc4; color: #0f0f0f; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; }
+    .fb-item-badge.comment-badge { background: #6c63ff; color: #fff; }
+    .fb-item-content { font-size: 13px; color: #e0e0e0; margin-bottom: 4px; }
+    .fb-item-meta { font-size: 11px; color: #616161; }
+    .fb-item-delete { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #616161; cursor: pointer; font-size: 14px; }
+    .fb-item-delete:hover { color: #f44336; }
+
+    /* 전체 피드백 섹션 */
+    .comment-section { flex: 1; display: flex; flex-direction: column; padding: 12px; gap: 8px; overflow: hidden; }
+    .comment-section p { font-size: 12px; color: #9e9e9e; }
+    .comment-section textarea { flex: 1; background: #1a1a1a; border: 1px solid #2c2c2c; color: #e0e0e0; padding: 10px; border-radius: 8px; font-size: 13px; resize: none; min-height: 80px; }
+    .comment-section textarea:focus { outline: none; border-color: #4ecdc4; }
+    .comment-section button { background: #6c63ff; color: #fff; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .comment-section button:hover { background: #5a52d5; }
+
+    /* 줄 선택 팝업 */
+    .highlight-popup { position: fixed; background: #1a1a1a; border: 1px solid #3c3c3c; border-radius: 10px; padding: 14px; width: 280px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+    .highlight-popup h4 { font-size: 13px; color: #4ecdc4; margin-bottom: 10px; }
+    .highlight-popup textarea { width: 100%; background: #111; color: #e0e0e0; border: 1px solid #3c3c3c; padding: 8px; border-radius: 6px; font-size: 13px; resize: vertical; min-height: 64px; margin-bottom: 10px; }
+    .highlight-popup textarea:focus { outline: none; border-color: #4ecdc4; }
+    .color-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .color-btn { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+    .color-btn.active { border-color: #fff; transform: scale(1.15); }
+    .color-btn.yellow { background: #ffeb3b; }
+    .color-btn.red    { background: #f44336; }
+    .color-btn.green  { background: #4caf50; }
+    .color-btn.blue   { background: #2196f3; }
+    .popup-actions { display: flex; gap: 8px; }
+    .popup-actions button { flex: 1; padding: 6px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .popup-btn-submit { background: #4ecdc4; color: #0f0f0f; }
+    .popup-btn-cancel { background: #2c2c2c; color: #e0e0e0; }
+
+    /* 토스트 */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; border: 1px solid #3c3c3c; border-radius: 8px; padding: 10px 16px; font-size: 13px; z-index: 200; transition: opacity 0.3s; }
+    .toast.success { border-color: #4caf50; color: #4caf50; }
+    .toast.error   { border-color: #f44336; color: #f44336; }
+
+    .empty-msg { color: #616161; font-size: 12px; text-align: center; padding: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- 상단 인증 바 -->
+<div class="header">
+  <h1>&lt;/&gt; 피드백 테스트</h1>
+  <input id="jwt" type="text" placeholder="JWT Token (Bearer 제외하고 붙여넣기)">
+  <input id="sub-id" type="number" placeholder="Submission ID" value="1">
+  <button onclick="loadFeedbacks()">불러오기</button>
+  <button class="danger" onclick="clearAll()">초기화</button>
+</div>
+
+<div class="main">
+  <!-- ===== 왼쪽: 코드 패널 ===== -->
+  <div class="code-panel">
+    <div class="code-panel-header">
+      <span>학생 코드 &nbsp;·&nbsp; <b>줄 클릭</b>: 하이라이트 추가 &nbsp;·&nbsp; <b>Shift+클릭</b>: 범위 선택</span>
+      <span id="sel-info" style="color:#4ecdc4;"></span>
+    </div>
+
+    <!-- 코드 직접 입력 (테스트용) -->
+    <div class="code-input-area">
+      <textarea id="raw-code" rows="3" placeholder="테스트할 코드를 여기에 입력하면 아래에 줄번호와 함께 표시됩니다."># 두 수를 입력받아 합을 출력하세요
+a,b=map(int,input().split())
+print(a+b)</textarea>
+      <div class="row">
+        <label>↓ 아래 코드 뷰에서 줄을 클릭해 하이라이트를 추가하세요</label>
+        <button style="padding:4px 10px;font-size:12px;" onclick="renderCode()">새로고침</button>
+      </div>
+    </div>
+
+    <div class="code-area" id="code-area"></div>
+  </div>
+
+  <!-- ===== 오른쪽: 피드백 패널 ===== -->
+  <div class="feedback-panel">
+    <!-- 코드 코멘트 (HIGHLIGHT) -->
+    <div class="fb-section" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="fb-section-title">
+        <span>코드 코멘트</span>
+        <span style="color:#9e9e9e;">특정 줄에 대한 하이라이트 피드백</span>
+      </div>
+      <div class="fb-list" id="highlight-list">
+        <p class="empty-msg">하이라이트 피드백이 없습니다.</p>
+      </div>
+    </div>
+
+    <!-- 전체 피드백 (COMMENT) -->
+    <div style="border-top:1px solid #2c2c2c;">
+      <div class="fb-section-title">
+        <span>전체 피드백</span>
+        <span style="color:#9e9e9e;">전체 코드에 대한 피드백</span>
+      </div>
+      <!-- COMMENT 타입 목록 -->
+      <div class="fb-list" id="comment-list" style="max-height:120px;"></div>
+    </div>
+    <div class="comment-section">
+      <p>학생에게 전달할 전체 피드백을 작성하세요.</p>
+      <textarea id="comment-content" placeholder="전체 피드백 내용을 입력하세요..."></textarea>
+      <button onclick="submitComment()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 하이라이트 팝업 -->
+<div class="highlight-popup" id="highlight-popup" style="display:none;">
+  <h4 id="popup-title">줄에 코멘트 추가</h4>
+  <div class="color-row">
+    <div class="color-btn yellow active" data-color="YELLOW" onclick="selectColor(this)"></div>
+    <div class="color-btn red"    data-color="RED"    onclick="selectColor(this)"></div>
+    <div class="color-btn green"  data-color="GREEN"  onclick="selectColor(this)"></div>
+    <div class="color-btn blue"   data-color="BLUE"   onclick="selectColor(this)"></div>
+  </div>
+  <textarea id="popup-content" placeholder="코멘트 내용 (선택 사항)"></textarea>
+  <div class="popup-actions">
+    <button class="popup-btn-submit" onclick="submitHighlight()">추가</button>
+    <button class="popup-btn-cancel" onclick="closePopup()">취소</button>
+  </div>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast" style="display:none;"></div>
+
+<script>
+  const API_BASE = '';  // 같은 서버, 상대경로
+  let selectedStart = null;
+  let selectedEnd   = null;
+  let selectedColor = 'YELLOW';
+  let feedbacks     = [];
+
+  // ───── 코드 렌더링 ─────
+  function renderCode() {
+    const raw = document.getElementById('raw-code').value;
+    const lines = raw.split('\n');
+    const area = document.getElementById('code-area');
+    area.innerHTML = '';
+
+    lines.forEach((line, i) => {
+      const lineNum = i + 1;
+      const div = document.createElement('div');
+      div.className = 'code-line';
+      div.dataset.line = lineNum;
+      applyHighlightClass(div, lineNum);
+
+      div.innerHTML = `
+        <div class="line-num">${lineNum}</div>
+        <div class="line-content">${escapeHtml(line) || ' '}</div>
+        <div class="line-indicator">${getLineIndicator(lineNum)}</div>
+      `;
+
+      div.addEventListener('click', (e) => onLineClick(e, lineNum));
+      area.appendChild(div);
+    });
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function getLineIndicator(lineNum) {
+    const hits = feedbacks.filter(f => f.type === 'HIGHLIGHT' && f.startLine <= lineNum && f.endLine >= lineNum);
+    return hits.length ? '●' : '';
+  }
+
+  function applyHighlightClass(div, lineNum) {
+    const hit = feedbacks.find(f => f.type === 'HIGHLIGHT' && f.startLine <= lineNum && f.endLine >= lineNum);
+    if (hit) div.classList.add('highlight-' + hit.color.toLowerCase());
+  }
+
+  // ───── 줄 클릭 ─────
+  function onLineClick(e, lineNum) {
+    if (e.shiftKey && selectedStart !== null) {
+      selectedEnd = lineNum;
+      if (selectedEnd < selectedStart) [selectedStart, selectedEnd] = [selectedEnd, selectedStart];
+    } else {
+      selectedStart = lineNum;
+      selectedEnd   = lineNum;
+    }
+    updateSelInfo();
+    openPopup(e);
+  }
+
+  function updateSelInfo() {
+    const el = document.getElementById('sel-info');
+    if (selectedStart === null) { el.textContent = ''; return; }
+    el.textContent = selectedStart === selectedEnd
+      ? `줄 ${selectedStart} 선택됨`
+      : `줄 ${selectedStart}~${selectedEnd} 선택됨`;
+  }
+
+  // ───── 팝업 ─────
+  function openPopup(e) {
+    const popup = document.getElementById('highlight-popup');
+    document.getElementById('popup-title').textContent =
+      selectedStart === selectedEnd ? `줄 ${selectedStart}에 코멘트 추가` : `줄 ${selectedStart}~${selectedEnd}에 코멘트 추가`;
+    document.getElementById('popup-content').value = '';
+
+    const x = Math.min(e.clientX + 10, window.innerWidth  - 300);
+    const y = Math.min(e.clientY + 10, window.innerHeight - 220);
+    popup.style.left = x + 'px';
+    popup.style.top  = y + 'px';
+    popup.style.display = 'block';
+    document.getElementById('popup-content').focus();
+  }
+
+  function closePopup() {
+    document.getElementById('highlight-popup').style.display = 'none';
+    selectedStart = null;
+    selectedEnd   = null;
+    updateSelInfo();
+  }
+
+  function selectColor(el) {
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selectedColor = el.dataset.color;
+  }
+
+  // ───── API 호출 헬퍼 ─────
+  function token() { return document.getElementById('jwt').value.trim(); }
+  function subId() { return parseInt(document.getElementById('sub-id').value); }
+
+  async function api(method, path, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token()) headers['Authorization'] = 'Bearer ' + token();
+    const res = await fetch(API_BASE + path, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined
+    });
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  // ───── 피드백 불러오기 ─────
+  async function loadFeedbacks() {
+    const id = subId();
+    if (!id) { showToast('Submission ID를 입력하세요.', 'error'); return; }
+    const { ok, data } = await api('GET', `/api/v1/feedback?submission_id=${id}`);
+    if (!ok) { showToast('불러오기 실패: ' + (data.message || ''), 'error'); return; }
+
+    feedbacks = (data.data || []).map(f => ({
+      feedbackId: f.feedback_id,
+      type:       f.type,
+      content:    f.content,
+      createdBy:  f.created_by,
+      createdAt:  f.created_at,
+      startLine:  f.start_line,
+      endLine:    f.end_line,
+      color:      f.color,
+    }));
+
+    renderFeedbackLists();
+    renderCode();
+    showToast(`피드백 ${feedbacks.length}개 로드됨`, 'success');
+  }
+
+  // ───── 피드백 목록 렌더링 ─────
+  function renderFeedbackLists() {
+    const highlights = feedbacks.filter(f => f.type === 'HIGHLIGHT');
+    const comments   = feedbacks.filter(f => f.type === 'COMMENT');
+
+    const hl = document.getElementById('highlight-list');
+    hl.innerHTML = highlights.length ? '' : '<p class="empty-msg">하이라이트 피드백이 없습니다.</p>';
+    highlights.forEach(f => hl.appendChild(makeFbItem(f)));
+
+    const cl = document.getElementById('comment-list');
+    cl.innerHTML = comments.length ? '' : '<p class="empty-msg">전체 피드백이 없습니다.</p>';
+    comments.forEach(f => cl.appendChild(makeFbItem(f)));
+  }
+
+  function makeFbItem(f) {
+    const div = document.createElement('div');
+    div.className = 'fb-item';
+
+    const badge = f.type === 'HIGHLIGHT'
+      ? `<span class="fb-item-badge">줄 ${f.startLine}${f.endLine !== f.startLine ? '~' + f.endLine : ''}</span>`
+      : `<span class="fb-item-badge comment-badge">전체</span>`;
+
+    const colorDot = f.color ? `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${colorHex(f.color)};margin-right:4px;"></span>` : '';
+
+    div.innerHTML = `
+      ${badge} ${colorDot}
+      <div class="fb-item-content">${escapeHtml(f.content || '(내용 없음)')}</div>
+      <div class="fb-item-meta">${f.createdBy || ''} · ${formatDate(f.createdAt)}</div>
+      <button class="fb-item-delete" onclick="deleteFeedback(${f.feedbackId}, this)">✕</button>
+    `;
+    return div;
+  }
+
+  function colorHex(c) {
+    return { YELLOW:'#ffeb3b', RED:'#f44336', GREEN:'#4caf50', BLUE:'#2196f3' }[c] || '#fff';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    return iso.substring(0, 16).replace('T', ' ');
+  }
+
+  // ───── 하이라이트 제출 ─────
+  async function submitHighlight() {
+    const content = document.getElementById('popup-content').value.trim();
+    const body = {
+      submission_id: subId(),
+      start_line:    selectedStart,
+      end_line:      selectedEnd,
+      color:         selectedColor,
+      content:       content || null
+    };
+
+    const { ok, data } = await api('POST', '/api/v1/feedback/highlights', body);
+    closePopup();
+    if (!ok) { showToast('실패: ' + (data.message || JSON.stringify(data)), 'error'); return; }
+
+    showToast('하이라이트 추가됨', 'success');
+    await loadFeedbacks();
+  }
+
+  // ───── 전체 코멘트 제출 ─────
+  async function submitComment() {
+    const content = document.getElementById('comment-content').value.trim();
+    if (!content) { showToast('내용을 입력하세요.', 'error'); return; }
+
+    const body = { submission_id: subId(), content };
+    const { ok, data } = await api('POST', '/api/v1/feedback/comments', body);
+    if (!ok) { showToast('실패: ' + (data.message || JSON.stringify(data)), 'error'); return; }
+
+    document.getElementById('comment-content').value = '';
+    showToast('전체 피드백 저장됨', 'success');
+    await loadFeedbacks();
+  }
+
+  // ───── 피드백 삭제 ─────
+  async function deleteFeedback(id, btn) {
+    const { ok, data } = await api('DELETE', `/api/v1/feedback/${id}`);
+    if (!ok) { showToast('삭제 실패: ' + (data.message || ''), 'error'); return; }
+    showToast('삭제됨', 'success');
+    await loadFeedbacks();
+  }
+
+  // ───── 초기화 ─────
+  function clearAll() {
+    feedbacks = [];
+    renderFeedbackLists();
+    renderCode();
+    closePopup();
+  }
+
+  // ───── 토스트 ─────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.className = 'toast ' + type;
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 2500);
+  }
+
+  // 팝업 외부 클릭 시 닫기
+  document.addEventListener('click', (e) => {
+    const popup = document.getElementById('highlight-popup');
+    if (popup.style.display === 'block' && !popup.contains(e.target) && !e.target.closest('.code-line')) {
+      closePopup();
+    }
+  });
+
+  // 초기 렌더링
+  renderCode();
+</script>
+</body>
+</html>
