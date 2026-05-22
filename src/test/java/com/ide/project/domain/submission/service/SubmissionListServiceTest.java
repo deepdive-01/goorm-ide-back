@@ -67,7 +67,7 @@ class SubmissionListServiceTest {
 
         Submission submission = mock(Submission.class);
         given(submission.getId()).willReturn(1L);
-        given(submission.getStudentId()).willReturn(TEST_STUDENT_ID);
+        given(submission.getUserId()).willReturn(TEST_STUDENT_ID);
         given(submission.getStatus()).willReturn("SUCCESS");
 
         given(submissionRepository.findByProblemId(TEST_QUESTION_ID)).willReturn(List.of(submission));
@@ -101,7 +101,7 @@ class SubmissionListServiceTest {
 
         Submission submission = mock(Submission.class);
         given(submission.getId()).willReturn(2L);
-        given(submission.getStudentId()).willReturn(TEST_STUDENT_ID);
+        given(submission.getUserId()).willReturn(TEST_STUDENT_ID);
         given(submission.getStatus()).willReturn("FAIL");
 
         given(submissionRepository.findByProblemIdAndStatus(TEST_QUESTION_ID, "FAIL"))
@@ -147,7 +147,7 @@ class SubmissionListServiceTest {
 
         Submission submission = mock(Submission.class);
         given(submission.getId()).willReturn(3L);
-        given(submission.getStudentId()).willReturn(TEST_STUDENT_ID);
+        given(submission.getUserId()).willReturn(TEST_STUDENT_ID);
         given(submission.getStatus()).willReturn("SUCCESS");
 
         given(submissionRepository.findByProblemId(TEST_QUESTION_ID)).willReturn(List.of(submission));
