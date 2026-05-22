@@ -22,35 +22,35 @@ public class Problem {
     @Column(name = "space_id", nullable = false)
     private Long spaceId;
 
-    @Column(name = "created_by", nullable = false) // creator_id에서 DB 컬럼명인 created_by로 변경
+    @Column(name = "created_by", nullable = false) 
     private Long createdBy;
 
     @Column(name = "problem_bank_id")
     private Long problemBankId;
 
-    @Column(nullable = false, length = 200) // DB의 VARCHAR(200) 반영
+    @Column(nullable = false, length = 200)
     private String title;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(nullable = false, length = 20) // DB의 NOT NULL 반영
+    @Column(nullable = false, length = 20)
     private String difficulty;
 
-    @Column(nullable = false, length = 20) // 자바 코드에 누락되었던 언어(language) 필드 추가
+    @Column(nullable = false, length = 20)
     private String language;
 
     @Column(name = "starter_code", columnDefinition = "TEXT")
     private String starterCode;
 
-    @Column(name = "is_published", nullable = false) // 자바 코드에 누락되었던 공개 여부 필드 추가
+    @Column(name = "is_published", nullable = false) 
     @Builder.Default
     private boolean isPublished = false;
 
-    @Column(name = "created_at", nullable = false, updatable = false) // 생성 시간 추가
+    @Column(name = "created_at", nullable = false, updatable = false) 
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false) // 수정 시간 추가
+    @Column(name = "updated_at", nullable = false) 
     private LocalDateTime updatedAt;
 
     // 엔티티가 처음 저장될 때 시간 자동 입력
