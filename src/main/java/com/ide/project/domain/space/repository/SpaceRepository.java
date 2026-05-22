@@ -15,4 +15,10 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
     // 초대코드로 스페이스 찾기
     Optional<Space> findByInviteCodeAndIsActiveTrue(String inviteCode);
 
+    // 초대 코드로 조회
+    Optional<Space> findByInviteCode(String inviteCode);
+
+    // 초대 코드 중복 여부 확인
+    boolean existsByInviteCode(String inviteCode);
+
 }

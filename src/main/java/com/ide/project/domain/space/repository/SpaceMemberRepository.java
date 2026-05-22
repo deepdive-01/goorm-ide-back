@@ -1,5 +1,6 @@
 package com.ide.project.domain.space.repository;
 
+import com.ide.project.domain.space.entity.Space;
 import com.ide.project.domain.space.entity.SpaceMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
