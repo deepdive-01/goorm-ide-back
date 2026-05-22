@@ -49,7 +49,10 @@ public enum ErrorCode {
     // 타이머
     TIMER_ALREADY_RUNNING(400, "이미 실행 중인 타이머가 있습니다."),
     TIMER_NOT_FOUND(404, "실행 중인 타이머가 없습니다."),
-    ROOM_NOT_FOUND(404, "워크스페이스를 찾을 수 없습니다.");
+    ROOM_NOT_FOUND(404, "워크스페이스를 찾을 수 없습니다."),
+
+    // 제출
+    QUESTION_NOT_FOUND(404, "문제를 찾을 수 없습니다.");
 
     private final int status;
     private final String message;
