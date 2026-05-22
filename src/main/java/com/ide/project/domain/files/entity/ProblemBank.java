@@ -1,9 +1,17 @@
 package com.ide.project.domain.files.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "problem_bank")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProblemBank {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,20 +23,34 @@ public class ProblemBank {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @Column(length = 20)
+    @Column(nullable = false, length = 20) // DB의 NOT NULL 조건 반영
     private String difficulty;
 
-    @Column(length = 20)
+    @Column(nullable = false, length = 20) // DB의 NOT NULL 조건 반영
     private String language;
 
     @Column(columnDefinition = "TEXT", name = "starter_code")
     private String starterCode;
 
-    // 수동 생성된 표준 Getter 메서드들
-    public Long getId() { return this.id; }
-    public String getTitle() { return this.title; }
-    public String getDescription() { return this.description; }
-    public String getDifficulty() { return this.difficulty; }
-    public String getLanguage() { return this.language; }
-    public String getStarterCode() { return this.starterCode; }
+    @Column(name = "source_type", nullable = false, length = 50) // 새로 추가된 컬럼 매핑
+    private String sourceType = "ORIGINAL"; // DB의 DEFAULT 값과 일치화
+
+    @Column(name = "source_url", length = 500) // 새로 추가된 컬럼 매핑
+    private String sourceUrl;
+
+    @Column(name = "is_active", nullable = false) // 새로 추가된 컬럼 매핑
+    private boolean isActive = true; // DB의 DEFAULT 값과 일치화
+
+    @Column(name = "created_at", nullable = false, updatable = false) // 생성일자 추가
+    private LocalDateTime createdAt;
+
+    // JPA 엔티티가 영속화(저장)되기 직전에 현재 시간으로 자동 세팅 (DB의 DEFAULT NOW() 역할)
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
+
+
 }

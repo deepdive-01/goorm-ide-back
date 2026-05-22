@@ -1,26 +1,18 @@
 package com.ide.project.domain.files.service;
 
 import com.ide.project.domain.files.dto.*;
+import java.util.List;
 
 public interface FileService {
-    
-    Long assignProblemToSpace(ProblemAssignRequest request);
-    
-    Long createAndAssignProblem(ProblemCreateRequest request);
-    
+
+    ProblemResponse createProblem(ProblemCreateRequest request);
+    ProblemResponse updateProblem(Long problemId, ProblemUpdateRequest request);
+    ProblemResponse assignProblemFromBank(ProblemAssignRequest request);
     ProblemResponse getProblemDetails(Long problemId);
-    
-    void updateProblemCode(Long problemId, CodeUpdateRequest request);
-    
-    void updateProblem(Long problemId, ProblemUpdateRequest request);
-    
-    void deleteProblem(Long problemId);
-    
-    void submitCode(Long problemId, SubmissionUpdateRequest request);
-    
-    void resetSubmissionCode(Long problemId);
-    
-    Long addTestCase(Long problemId, TestCaseCreateRequest request);
-    
-    void deleteTestCase(Long testCaseId);
+
+
+    void saveTestCases(Long problemId, List<TestCaseCreateRequest> testCaseRequests);
+
+
+    void submitCode(SubmissionRequest request);
 }

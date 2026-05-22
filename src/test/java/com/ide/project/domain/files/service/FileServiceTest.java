@@ -1,10 +1,11 @@
 package com.ide.project.domain.files.service;
 
-import com.ide.project.domain.files.dto.SubmissionUpdateRequest;
-import com.ide.project.domain.files.entity.Problem;
+import com.ide.project.domain.files.dto.SubmissionRequest;
 import com.ide.project.domain.files.entity.Submission;
+import com.ide.project.domain.files.repository.ProblemBankRepository;
 import com.ide.project.domain.files.repository.ProblemRepository;
 import com.ide.project.domain.files.repository.SubmissionRepository;
+import com.ide.project.domain.files.repository.TestCaseRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,18 +18,17 @@ import org.mockito.quality.Strictness;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT) // 스터빙 에러 방지
+@MockitoSettings(strictness = Strictness.LENIENT)
 class FileServiceTest {
 
-    @Mock
-    private ProblemRepository problemRepository;
-
-    @Mock
-    private SubmissionRepository submissionRepository;
+    // FileServiceImpl에 주입되는 모든 Repository를 Mock 객체로 선언합니다.
+    @Mock private ProblemRepository problemRepository;
+    @Mock private ProblemBankRepository problemBankRepository;
+    @Mock private TestCaseRepository testCaseRepository;
+    @Mock private SubmissionRepository submissionRepository;
 
     @InjectMocks
     private FileServiceImpl fileService;
@@ -38,34 +38,23 @@ class FileServiceTest {
     void submitCode_Success() {
         // given
         Long problemId = 1L;
-        SubmissionUpdateRequest request = new SubmissionUpdateRequest("public class Main {}");
+        Long userId = 1L;
         
-        // anyLong()을 사용하여 인자값 일치 여부와 상관없이 무조건 가짜 응답을 반환하게 설정
-        when(problemRepository.findById(anyLong())).thenReturn(Optional.of(new Problem()));
-        when(submissionRepository.findByStudentIdAndProblemId(anyLong(), anyLong()))
+        // 실제 record DTO 구조에 맞게 생성
+        SubmissionRequest request = new SubmissionRequest(
+                problemId, userId, "System.out.println(1);", "System.out.println(1);", true
+        );
+        
+        // DB에 기존 제출 기록이 없는 상황(Optional.empty)을 가정
+        when(submissionRepository.findByProblemIdAndUserId(problemId, userId))
                 .thenReturn(Optional.empty());
 
         // when
-        fileService.submitCode(problemId, request);
+        // 🌟 실제 서비스 코드와 동일하게 파라미터 1개(request)만 전달합니다.
+        fileService.submitCode(request); 
 
-        // then: save가 호출되는지만 검증
-        verify(submissionRepository, atLeastOnce()).save(any(Submission.class));
-    }
-
-    @Test
-    @DisplayName("제출 취소 시, 기존 기록을 삭제한다")
-    void resetSubmission_Success() {
-        // given
-        Long problemId = 1L;
-        
-        when(problemRepository.findById(anyLong())).thenReturn(Optional.of(new Problem()));
-        when(submissionRepository.findByStudentIdAndProblemId(anyLong(), anyLong()))
-                .thenReturn(Optional.of(new Submission()));
-
-        // when
-        fileService.resetSubmissionCode(problemId);
-
-        // then: delete가 호출되는지만 검증
-        verify(submissionRepository, atLeastOnce()).delete(any(Submission.class));
+        // then
+        // submissionRepository.save()가 1번 정상적으로 호출되었는지 검증합니다.
+        verify(submissionRepository, times(1)).save(any(Submission.class));
     }
 }

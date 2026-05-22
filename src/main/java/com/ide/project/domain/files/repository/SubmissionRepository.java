@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface SubmissionRepository extends JpaRepository<Submission, Long> {
 
     Optional<Submission> findByStudentIdAndProblemId(Long studentId, Long problemId);
