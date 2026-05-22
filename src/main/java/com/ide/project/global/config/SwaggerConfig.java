@@ -33,13 +33,10 @@ public class SwaggerConfig {
                         .version("v1"))
                 .components(new Components().addSecuritySchemes("bearerAuth", bearerAuth))
                 .addSecurityItem(securityRequirement)
-                .servers(List.of(                                              // ← 추가
-                    new Server()
-                            .url("https://apicoderun-dev.leeseh0806.com")
-                            .description("Dev Server"),
-                    new Server()
-                            .url("https://apicoderun.leeseh0806.com")
-                            .description("Prod Server")
+                .servers(List.of(
+                    new Server().url("http://localhost:8080").description("Local Server"),
+                    new Server().url("https://apicoderun-dev.leeseh0806.com").description("Dev Server"),
+                    new Server().url("https://apicoderun.leeseh0806.com").description("Prod Server")
                 ));
 
     }

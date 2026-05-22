@@ -27,4 +27,16 @@ public class MailService {
 
     }
 
+    // 스페이스 초대 메일
+    public void sendSpaceInvite(String to, String spaceName, String inviteCode) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(from);
+        message.setTo(to);
+        message.setSubject("[codeRun] 워크스페이스에 초대되었습니다.");
+        message.setText(spaceName + " 워크스페이스에 초대 됐습니다.\n초대 코드: " + inviteCode);
+
+        // 실제 SMTP 서버로 메일을 전송
+        mailSender.send(message);
+    }
+
 }
