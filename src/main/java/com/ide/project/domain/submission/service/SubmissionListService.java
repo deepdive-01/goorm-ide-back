@@ -34,12 +34,12 @@ public class SubmissionListService {
 
         List<SubmissionListResponse.SubmissionItem> items = submissions.stream()
                 .map(s -> {
-                    User user = userRepository.findById(s.getStudentId())
+                    User user = userRepository.findById(s.getUserId())
                             .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
                     boolean hasFeedback = submissionRepository.countFeedbacksBySubmissionId(s.getId()) > 0;
                     return new SubmissionListResponse.SubmissionItem(
                             s.getId(),
-                            s.getStudentId(),
+                            s.getUserId(),
                             user.getNickname(),
                             s.getStatus(),
                             hasFeedback
