@@ -249,7 +249,11 @@ public class SpaceService {
 
     // 랜덤한 숫자 + 영어 조합의 초대 코드 생성
     private String generateInviteCode() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+        String code;
+        do {
+            code = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+        } while (spaceRepository.existsByInviteCode(code));
+        return code;
     }
 
 }

@@ -22,7 +22,7 @@ import java.util.List;
 @Tag(name = "Space", description = "스페이스 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/sapces")
+@RequestMapping("api/v1/spaces")
 public class SpaceController {
     private final SpaceService spaceService;
 
@@ -106,7 +106,7 @@ public class SpaceController {
     ) {
         Long userId = getCurrentUserId();
         SpaceJoinResponse response = spaceService.joinSpace(request, userId);
-        return ResponseEntity.ok(ApiResponse.success(200, "SPACE_JOIN_SUCESS", "워크스페이스에 참여했습니다.",response));
+        return ResponseEntity.ok(ApiResponse.success(200, "SPACE_JOIN_SUCCESS", "워크스페이스에 참여했습니다.",response));
     }
 
     // GET /api/v1/spaces/{spacesId}/members - 스페이스 내 학생 목록 조회
@@ -142,7 +142,7 @@ public class SpaceController {
         Long userId = getCurrentUserId();
         SpaceInviteEmailResponse response = spaceService.sendInviteEmail(spaceId, request, userId);
 
-        return ResponseEntity.ok(ApiResponse.success(200, "INVITE_EMAIL_SNET", "초대 이메일이 발송됐습니다.", response));
+        return ResponseEntity.ok(ApiResponse.success(200, "INVITE_EMAIL_SENT", "초대 이메일이 발송됐습니다.", response));
     }
 
     private Long getCurrentUserId() {

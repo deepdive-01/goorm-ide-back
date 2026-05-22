@@ -12,9 +12,6 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
     // 멘토가 생성한 스페이스 목록
     List<Space> findByMentor(User mentor);
 
-    // 초대코드로 스페이스 찾기
-    Optional<Space> findByInviteCodeAndIsActiveTrue(String inviteCode);
-
     // 초대 코드로 조회
     Optional<Space> findByInviteCode(String inviteCode);
 
