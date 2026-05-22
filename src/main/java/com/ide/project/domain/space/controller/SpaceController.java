@@ -22,7 +22,7 @@ import java.util.List;
 @Tag(name = "Space", description = "스페이스 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/spaces")
+@RequestMapping("/api/v1/spaces")
 public class SpaceController {
     private final SpaceService spaceService;
 
