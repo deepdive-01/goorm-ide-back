@@ -27,7 +27,7 @@ public class Submission {
     @Column(name = "problem_id", nullable = false)
     private Long problemId;
 
-    @Column(name = "user_id", nullable = false) // DDL에 맞추어 student_id에서 user_id로 변경
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "saved_code", columnDefinition = "TEXT")
@@ -38,7 +38,7 @@ public class Submission {
 
     @Column(nullable = false, length = 20)
     @Builder.Default
-    private String status = "PENDING"; // PENDING, SUCCESS, FAIL, ERROR
+    private String status = "DRAFT"; // DRAFT, PENDING, PASS, FAIL, ERROR
 
     @Column(name = "execution_time_ms")
     private Integer executionTimeMs;
@@ -66,10 +66,23 @@ public class Submission {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // 코드 임시 저장 및 제출 갱신 비즈니스 메서드
+    // 코드 임시 저장 및 제출 갱신
     public void updateSubmission(String savedCode, String submittedCode, String status) {
         if (savedCode != null) this.savedCode = savedCode;
         if (submittedCode != null) this.submittedCode = submittedCode;
         if (status != null) this.status = status;
+    }
+
+    // 코드 수정 (임시저장만 업데이트)
+    public void updateSavedCode(String savedCode) {
+        if (savedCode != null) this.savedCode = savedCode;
+    }
+
+    // 제출 취소
+    public void cancelSubmission() {
+        if ("PENDING".equals(this.status)) {
+            this.status = "DRAFT";
+            this.submittedCode = null;
+        }
     }
 }
