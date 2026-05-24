@@ -14,17 +14,17 @@ public class CodeService {
 
     public CodeExecuteResponse execute(CodeExecuteRequest request) {
         String result = codeExecutor.execute(
-            request.getLanguage(),
-            request.getCode(),
-            request.getStdin()
+            request.language(),
+            request.code(),
+            request.stdin()
         );
 
         boolean isError = result.startsWith("ERROR:");
 
-        return CodeExecuteResponse.builder()
-            .output(isError ? null : result)
-            .stderr(isError ? result : null)
-            .isError(isError)
-            .build();
+        return new CodeExecuteResponse(
+            isError ? null : result,  // output
+            isError ? result : null,  // stderr
+            isError                   // isError
+        );
     }
 }
