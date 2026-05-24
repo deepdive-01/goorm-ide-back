@@ -2,8 +2,16 @@ package com.ide.project.domain.files.repository;
 
 import com.ide.project.domain.files.entity.ProblemBank;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
 public interface ProblemBankRepository extends JpaRepository<ProblemBank, Long> {
-    // 기본 제공되는 CRUD 메서드(findById 등) 사용
-    // 추후 필요 시 List<ProblemBank> findAllByDifficulty(String difficulty); 등을 추가 가능
+
+    // 활성화된 문제 은행 목록만 조회
+    List<ProblemBank> findAllByIsActiveTrue();
+
+    // 난이도별 문제 은행 조회
+    List<ProblemBank> findAllByDifficulty(String difficulty);
+
+    // 언어별 문제 은행 조회
+    List<ProblemBank> findAllByLanguage(String language);
 }

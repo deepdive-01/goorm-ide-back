@@ -1,14 +1,19 @@
 package com.ide.project.domain.files.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "problem_bank_testcases")
 @Getter
-@Setter 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class TestCase {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,6 +37,4 @@ public class TestCase {
 
     @Column(name = "order_num", nullable = false)
     private int orderNum;
-
-  
 }
