@@ -1,0 +1,30 @@
+package com.ide.project.domain.code.service;
+
+import com.ide.project.domain.code.dto.CodeExecuteRequest;
+import com.ide.project.domain.code.dto.CodeExecuteResponse;
+import com.ide.project.domain.code.executor.CodeExecutor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class CodeService {
+
+    private final CodeExecutor codeExecutor;
+
+    public CodeExecuteResponse execute(CodeExecuteRequest request) {
+        String result = codeExecutor.execute(
+            request.getLanguage(),
+            request.getCode(),
+            request.getStdin()
+        );
+
+        boolean isError = result.startsWith("ERROR:");
+
+        return CodeExecuteResponse.builder()
+            .output(isError ? null : result)
+            .stderr(isError ? result : null)
+            .isError(isError)
+            .build();
+    }
+}
