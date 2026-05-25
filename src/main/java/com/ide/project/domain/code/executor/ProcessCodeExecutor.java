@@ -13,37 +13,37 @@ public class ProcessCodeExecutor implements CodeExecutor {
     @Override
     public String execute(String language, String code, String stdin) {
         try {
-            // 1. 임시 폴더 생성
+            // 임시 폴더 생성
             Path tempDir = Files.createTempDirectory("code_exec_");
             String fileName = getFileName(language);
             Path codeFile = tempDir.resolve(fileName);
 
-            // 2. 임시 파일에 코드 저장
+            // 임시 파일에 코드 저장
             Files.writeString(codeFile, code);
 
-            // 3. 언어에 맞는 실행 명령어 생성
+            // 언어에 맞는 실행 명령어 생성
             ProcessBuilder pb = buildProcess(language, codeFile, tempDir);
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
-            // 4. stdin 입력값 전달
+            // stdin 입력값 전달
             if (stdin != null && !stdin.isEmpty()) {
                 try (OutputStream os = process.getOutputStream()) {
                     os.write(stdin.getBytes());
                 }
             }
 
-            // 5. 타임아웃 10초
+            // 타임아웃 10초
             boolean finished = process.waitFor(TIMEOUT_SECONDS, TimeUnit.SECONDS);
             if (!finished) {
                 process.destroyForcibly();
                 return "ERROR: 실행 시간 초과 (10초)";
             }
 
-            // 6. 실행 결과 반환
+            // 실행 결과 반환
             String output = new String(process.getInputStream().readAllBytes());
 
-            // 7. 임시 파일 삭제
+            // 임시 파일 삭제
             deleteDirectory(tempDir);
 
             return output;
