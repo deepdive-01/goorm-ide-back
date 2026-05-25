@@ -23,7 +23,7 @@ public class ProcessCodeExecutor implements CodeExecutor {
 
             // 언어에 맞는 실행 명령어 생성
             ProcessBuilder pb = buildProcess(language, codeFile, tempDir);
-            pb.redirectErrorStream(true);
+            pb.redirectErrorStream(false);  // stderr 따로 받기
             Process process = pb.start();
 
             // stdin 입력값 전달
@@ -40,11 +40,17 @@ public class ProcessCodeExecutor implements CodeExecutor {
                 return "ERROR: 실행 시간 초과 (10초)";
             }
 
-            // 실행 결과 반환
+            // stdout, stderr 따로 읽기
             String output = new String(process.getInputStream().readAllBytes());
+            String stderr = new String(process.getErrorStream().readAllBytes());
 
             // 임시 파일 삭제
             deleteDirectory(tempDir);
+
+            // exitCode로 에러 판단
+            if (process.exitValue() != 0) {
+                return "ERROR: " + stderr;
+            }
 
             return output;
 
@@ -64,13 +70,22 @@ public class ProcessCodeExecutor implements CodeExecutor {
     }
 
     private ProcessBuilder buildProcess(String language, Path codeFile, Path tempDir) {
+        // Windows 환경 (cmd /c), Linux 환경 (sh -c) 구분
+        boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
+
         return switch (language.toLowerCase()) {
-            case "python"     -> new ProcessBuilder("python3", codeFile.toString());
-            case "java"       -> new ProcessBuilder("sh", "-c",
-                "javac " + codeFile + " -d " + tempDir + " && java -cp " + tempDir + " Main");
+            case "python"     -> new ProcessBuilder("python", codeFile.toString());
             case "javascript" -> new ProcessBuilder("node", codeFile.toString());
-            case "cpp"        -> new ProcessBuilder("sh", "-c",
-                "g++ " + codeFile + " -o " + tempDir + "/Main && " + tempDir + "/Main");
+            case "java"       -> isWindows
+                ? new ProcessBuilder("cmd", "/c",
+                    "javac " + codeFile + " -d " + tempDir + " && java -cp " + tempDir + " Main")
+                : new ProcessBuilder("sh", "-c",
+                    "javac " + codeFile + " -d " + tempDir + " && java -cp " + tempDir + " Main");
+            case "cpp"        -> isWindows
+                ? new ProcessBuilder("cmd", "/c",
+                    "g++ " + codeFile + " -o " + tempDir + "\\Main && " + tempDir + "\\Main")
+                : new ProcessBuilder("sh", "-c",
+                    "g++ " + codeFile + " -o " + tempDir + "/Main && " + tempDir + "/Main");
             default -> throw new IllegalArgumentException("지원하지 않는 언어: " + language);
         };
     }
