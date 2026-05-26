@@ -3,6 +3,7 @@ package com.ide.project.domain.user.repository;
 import com.ide.project.domain.user.entity.OauthAccount;
 import com.ide.project.domain.user.entity.User;
 import com.ide.project.domain.user.entity.Provider;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -11,6 +12,8 @@ import java.util.Optional;
 public interface OauthAccountRepository extends JpaRepository<OauthAccount, Long> {
 
     // 소셜 로그인시 이미 연동된 계정인지 확인, 카카오로 로그인한 유저가 고유 ID로 기존 계정을 조회할 때
+    // User가 LAZY이므로 @EntityGraph로 함께 로딩 (open-in-view: false 환경)
+    @EntityGraph(attributePaths = "user")
     Optional<OauthAccount> findByProviderAndProviderId(Provider provider, String providerId);
 
     // 특정 유저가 특정 소셜 로그인을 이미 연동했는지 확인할 때
