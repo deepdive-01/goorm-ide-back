@@ -1,5 +1,6 @@
 package com.ide.project.domain.user.controller;
 
+import com.ide.project.domain.user.dto.response.ProfileImageResponse;
 import com.ide.project.domain.user.dto.response.UserMeResponse;
 import com.ide.project.domain.user.service.UserService;
 import com.ide.project.global.response.ApiResponse;
@@ -8,13 +9,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Tag(name = "User", description = "유저 API")
 @RestController
@@ -51,6 +53,37 @@ public class UserController {
         UserMeResponse response = userService.getMe(userId);
 
         return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "내 정보를 조회했습니다.", response));
+    }
+
+    @Operation(
+            summary = "프로필 이미지 업로드",
+            description = "multipart/form-data로 이미지를 전송합니다. AccessToken 인증이 필요합니다.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PostMapping(value = "/me/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<ProfileImageResponse>> uploadProfileImage(
+            @RequestPart("image")MultipartFile file
+            ) throws IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = (Long) auth.getPrincipal();
+
+        ProfileImageResponse response = userService.uploadProfileImage(userId, file);
+
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "프로필 이미지가 업로드되었습니다.", response));
+    }
+
+    @Operation(
+            summary = "프로필 이미지 삭제",
+            description = "프로필 이미지를 삭제합니다. AccessToken 인증이 필요합니다.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @DeleteMapping("/me/profile-image")
+    public ResponseEntity<ApiResponse<Void>> deleteProfileImage() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = (Long) auth.getPrincipal();
+
+        userService.deleteProfileImage(userId);
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "프로필 이미지가 삭제되었습니다."));
     }
 
 }
