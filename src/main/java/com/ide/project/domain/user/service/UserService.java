@@ -1,5 +1,6 @@
 package com.ide.project.domain.user.service;
 
+import com.ide.project.domain.user.dto.response.UserMeResponse;
 import com.ide.project.domain.user.entity.User;
 import com.ide.project.domain.user.repository.UserRepository;
 import com.ide.project.global.exception.ErrorCode;
@@ -51,5 +52,21 @@ public class UserService {
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, expiredCookie.toString());
+    }
+
+    public UserMeResponse getMe(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        return new UserMeResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getName(),
+                user.getNickname(),
+                user.getRole(),
+                user.getLoginType(),
+                user.getProfileImageUrl(),
+                user.getCreatedAt()
+        );
     }
 }
