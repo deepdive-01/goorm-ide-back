@@ -52,7 +52,11 @@ public enum ErrorCode {
     ROOM_NOT_FOUND(404, "워크스페이스를 찾을 수 없습니다."),
 
     // 제출
-    QUESTION_NOT_FOUND(404, "문제를 찾을 수 없습니다.");
+    QUESTION_NOT_FOUND(404, "문제를 찾을 수 없습니다."),
+
+    // 피드백
+    FEEDBACK_NOT_FOUND(404, "피드백을 찾을 수 없습니다."),
+    INVALID_LINE_RANGE(400, "라인 범위가 올바르지 않습니다.");
 
     private final int status;
     private final String message;
