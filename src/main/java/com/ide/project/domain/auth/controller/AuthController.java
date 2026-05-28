@@ -68,7 +68,7 @@ public class AuthController {
     ) {
         // 회원가입 응답 DTO를 통해 회원가입 로직을 거친 값을 넣음
         SignupResponse signupResponse = signupService.signup(request);
-        return ResponseEntity.ok(ApiResponse.success(200, "SUCESS", "회원가입이 완료되었습니다", signupResponse));
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "회원가입이 완료되었습니다", signupResponse));
     }
 
     // POST /api/v1/auth/login 로컬 로그인
@@ -82,7 +82,7 @@ public class AuthController {
     ) {
         // 토큰 발급 DTO에 로그인 완료 정보를 담아서 제공
         TokenResponse tokenResponse = authService.login(request, response);
-        return ResponseEntity.ok(ApiResponse.success(200, "SUCESS", "로그인 성공", tokenResponse));
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "로그인 성공", tokenResponse));
     }
 
     // POST /api/v1/auth/logout 로그아웃 (AT 필요)
@@ -107,7 +107,7 @@ public class AuthController {
             String refreshToken // 저장
     ) {
         TokenResponse tokenResponse = authService.reissue(refreshToken);;
-        return ResponseEntity.ok(ApiResponse.success(200, "SUCESS", "토큰이 재발급 되었습니다.", tokenResponse));
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "토큰이 재발급 되었습니다.", tokenResponse));
     }
 
     // POST /api/v1/auth/oauth/signup 소셜 신규 유저 추가 정보 입력
