@@ -119,9 +119,9 @@ public class FileServiceImpl implements FileService {
     // 테스트케이스 비즈니스 로직
     // ==========================================
 
-    @Override
-    @Transactional
-    public void saveTestCases(Long problemId, List<TestCaseCreateRequest> testCaseRequests) {
+        @Override
+        @Transactional
+        public void saveTestCases(Long problemId, List<TestCaseCreateRequest> testCaseRequests) {
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new IllegalArgumentException("문제를 찾을 수 없습니다."));
 
@@ -140,6 +140,14 @@ public class FileServiceImpl implements FileService {
 
         testCaseRepository.saveAll(testCases);
     }
+        @Override
+        @Transactional(readOnly = true)
+        public List<TestCaseResponse> getTestCases(Long problemId) {
+        return testCaseRepository.findAllByProblemIdOrderByOrderNumAsc(problemId)
+            .stream()
+            .map(TestCaseResponse::from)
+            .collect(Collectors.toList());
+}
 
     // ==========================================
     // 제출 관리 비즈니스 로직
