@@ -79,6 +79,12 @@ public class FileController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(201, "SUCCESS", "테스트케이스가 성공적으로 저장되었습니다."));
     }
+    @GetMapping("/problems/{problemId}/testcases")
+    public ResponseEntity<ApiResponse<List<TestCaseResponse>>> getTestCases(
+            @PathVariable Long problemId) {
+        List<TestCaseResponse> response = fileService.getTestCases(problemId);
+        return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "테스트케이스 조회에 성공하였습니다.", response));
+}
 
     // ==========================================
     // 제출 관리 API

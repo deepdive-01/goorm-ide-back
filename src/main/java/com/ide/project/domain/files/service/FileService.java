@@ -19,6 +19,7 @@ public interface FileService {
     // 테스트케이스 관리
     // ==========================================
     void saveTestCases(Long problemId, List<TestCaseCreateRequest> testCaseRequests);
+    List<TestCaseResponse> getTestCases(Long problemId);
 
     // ==========================================
     // 제출 관리
