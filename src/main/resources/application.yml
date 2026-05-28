@@ -88,3 +88,5 @@ app:
   cookie:
     secure: true
     same-site: None
+judge0:
+  base-url: ${JUDGE0_URL}
