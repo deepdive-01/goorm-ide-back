@@ -82,4 +82,9 @@ public class User {
     public void deactivate() {
         this.active = false;
     }
+
+    // 사용자 이미지 업데이트 처리
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 }
