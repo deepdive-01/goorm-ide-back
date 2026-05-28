@@ -23,23 +23,6 @@ public class CodeService {
     private final SubmissionRepository submissionRepository;
     private final TestCaseRepository testCaseRepository;
 
-    //코드 실행
-    public CodeExecuteResponse execute(CodeExecuteRequest request) {
-        String result = codeExecutor.execute(
-            request.language(),
-            request.code(),
-            request.stdin()
-        );
-
-        boolean isError = result.startsWith("ERROR:");
-
-        return new CodeExecuteResponse(
-            isError ? null : result,  // output
-            isError ? result : null,  // stderr
-            isError                   // isError
-        );
-    }
-
     //코드 채점
     @Transactional
     public GradeResponse grade(GradeRequest request, Long userId) {
