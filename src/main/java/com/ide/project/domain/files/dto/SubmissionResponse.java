@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public record SubmissionResponse(
     Long id,
     Long problemId,
-    Long userId,
+    Long studentId,
     String savedCode,
     String submittedCode,
     String status,

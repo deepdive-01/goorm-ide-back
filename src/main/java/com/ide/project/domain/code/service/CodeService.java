@@ -18,12 +18,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CodeService {
 
-    
     private final CodeExecutor codeExecutor;
     private final SubmissionRepository submissionRepository;
     private final TestCaseRepository testCaseRepository;
 
-    //코드 채점
+    /**
+     * 코드 채점
+     * 테스트케이스별 코드 실행 및 결과 비교
+     * 채점 결과를 Submission에 업데이트 (PASS/FAIL)
+     */
     @Transactional
     public GradeResponse grade(GradeRequest request, Long userId) {
 
@@ -33,11 +36,12 @@ public class CodeService {
             .orElse(Submission.builder()
                 .problemId(request.problemId())
                 .userId(userId)
+                .userIdRef(userId)
                 .build());
 
-        // 테스트케이스 순서대로 가져오기
+        // 테스트케이스 가져오기
         List<TestCase> testCases = testCaseRepository
-            .findAllByProblemIdOrderByOrderNumAsc(request.problemId());
+            .findAllByProblemId(request.problemId());
 
         // 테스트케이스별 실행 및 비교
         List<GradeResponse.TestCaseResult> results = testCases.stream()
@@ -51,7 +55,6 @@ public class CodeService {
                 boolean passed = actualOutput.equals(tc.getExpectedOutput().trim());
 
                 return new GradeResponse.TestCaseResult(
-                    tc.getOrderNum(),
                     passed,
                     tc.isHidden() ? "hidden" : tc.getInput(),
                     tc.isHidden() ? "hidden" : tc.getExpectedOutput(),
@@ -70,7 +73,6 @@ public class CodeService {
         submission.updateSubmission(null, request.code(), status);
         submissionRepository.save(submission);
 
-        // 결과 반환
         return new GradeResponse(status, passCount, totalCount, results);
     }
 }
