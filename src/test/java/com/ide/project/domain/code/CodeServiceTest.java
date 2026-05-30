@@ -37,9 +37,6 @@ class CodeServiceTest {
     @InjectMocks
     private CodeService codeService;
 
-    // =====================
-    // 채점 PASS 테스트
-    // =====================
     @Test
     @DisplayName("채점 PASS - 모든 테스트케이스 통과")
     void 채점_PASS() {
@@ -47,15 +44,15 @@ class CodeServiceTest {
         GradeRequest request = new GradeRequest(1L, "python", "print(int(input()) * 2)");
 
         TestCase tc1 = TestCase.builder()
-            .input("5").expectedOutput("10").orderNum(1).isHidden(false).build();
+            .input("5").expectedOutput("10").isHidden(false).build();
         TestCase tc2 = TestCase.builder()
-            .input("3").expectedOutput("6").orderNum(2).isHidden(false).build();
+            .input("3").expectedOutput("6").isHidden(false).build();
 
         when(codeExecutor.execute(any(), any(), any()))
             .thenReturn("10\n")
             .thenReturn("6\n");
 
-        when(testCaseRepository.findAllByProblemIdOrderByOrderNumAsc(1L))
+        when(testCaseRepository.findAllByProblemId(1L))
             .thenReturn(List.of(tc1, tc2));
 
         when(submissionRepository.findByProblemIdAndUserId(any(), any()))
@@ -73,9 +70,6 @@ class CodeServiceTest {
         assertThat(response.totalCount()).isEqualTo(2);
     }
 
-    // =====================
-    // 채점 FAIL 테스트
-    // =====================
     @Test
     @DisplayName("채점 FAIL - 일부 테스트케이스 실패")
     void 채점_FAIL() {
@@ -83,12 +77,12 @@ class CodeServiceTest {
         GradeRequest request = new GradeRequest(1L, "python", "print('wrong')");
 
         TestCase tc1 = TestCase.builder()
-            .input("5").expectedOutput("10").orderNum(1).isHidden(false).build();
+            .input("5").expectedOutput("10").isHidden(false).build();
 
         when(codeExecutor.execute(any(), any(), any()))
             .thenReturn("wrong\n");
 
-        when(testCaseRepository.findAllByProblemIdOrderByOrderNumAsc(1L))
+        when(testCaseRepository.findAllByProblemId(1L))
             .thenReturn(List.of(tc1));
 
         when(submissionRepository.findByProblemIdAndUserId(any(), any()))
@@ -106,9 +100,6 @@ class CodeServiceTest {
         assertThat(response.totalCount()).isEqualTo(1);
     }
 
-    // =====================
-    // 숨김 테스트케이스 테스트
-    // =====================
     @Test
     @DisplayName("숨김 테스트케이스 - hidden으로 표시")
     void 숨김_테스트케이스() {
@@ -116,12 +107,12 @@ class CodeServiceTest {
         GradeRequest request = new GradeRequest(1L, "python", "print(int(input()) * 2)");
 
         TestCase tc1 = TestCase.builder()
-            .input("5").expectedOutput("10").orderNum(1).isHidden(true).build();
+            .input("5").expectedOutput("10").isHidden(true).build();
 
         when(codeExecutor.execute(any(), any(), any()))
             .thenReturn("10\n");
 
-        when(testCaseRepository.findAllByProblemIdOrderByOrderNumAsc(1L))
+        when(testCaseRepository.findAllByProblemId(1L))
             .thenReturn(List.of(tc1));
 
         when(submissionRepository.findByProblemIdAndUserId(any(), any()))

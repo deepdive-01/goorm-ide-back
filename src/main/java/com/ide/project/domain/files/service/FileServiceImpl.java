@@ -3,9 +3,11 @@ package com.ide.project.domain.files.service;
 import com.ide.project.domain.files.dto.*;
 import com.ide.project.domain.files.entity.Problem;
 import com.ide.project.domain.files.entity.ProblemBank;
+import com.ide.project.domain.files.entity.ProblemBankTestCase;
 import com.ide.project.domain.files.entity.Submission;
 import com.ide.project.domain.files.entity.TestCase;
 import com.ide.project.domain.files.repository.ProblemBankRepository;
+import com.ide.project.domain.files.repository.ProblemBankTestCaseRepository;
 import com.ide.project.domain.files.repository.ProblemRepository;
 import com.ide.project.domain.files.repository.SubmissionRepository;
 import com.ide.project.domain.files.repository.TestCaseRepository;
@@ -22,6 +24,7 @@ public class FileServiceImpl implements FileService {
 
     private final ProblemRepository problemRepository;
     private final ProblemBankRepository problemBankRepository;
+    private final ProblemBankTestCaseRepository problemBankTestCaseRepository;
     private final TestCaseRepository testCaseRepository;
     private final SubmissionRepository submissionRepository;
 
@@ -104,9 +107,9 @@ public class FileServiceImpl implements FileService {
 
         Problem savedProblem = problemRepository.save(problem);
 
-        // problem_bank_testcases → testcases 복사
-        List<TestCase> bankTestCases = testCaseRepository
-                .findAllByProblemBankId(bankProblem.getId());
+        // problem_bank_testcases → testcases 테이블로 테스트케이스 복사
+        List<ProblemBankTestCase> bankTestCases = problemBankTestCaseRepository
+                .findAllByProblemBankIdOrderByOrderNumAsc(bankProblem.getId());
 
         if (!bankTestCases.isEmpty()) {
             List<TestCase> problemTestCases = bankTestCases.stream()

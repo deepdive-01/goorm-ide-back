@@ -3,6 +3,7 @@ package com.ide.project.domain.files.service;
 import com.ide.project.domain.files.dto.*;
 import com.ide.project.domain.files.entity.Problem;
 import com.ide.project.domain.files.entity.ProblemBank;
+import com.ide.project.domain.files.entity.ProblemBankTestCase;
 import com.ide.project.domain.files.entity.Submission;
 import com.ide.project.domain.files.entity.TestCase;
 import com.ide.project.domain.files.repository.*;
@@ -28,6 +29,7 @@ class FileServiceTest {
 
     @Mock private ProblemRepository problemRepository;
     @Mock private ProblemBankRepository problemBankRepository;
+    @Mock private ProblemBankTestCaseRepository problemBankTestCaseRepository;
     @Mock private TestCaseRepository testCaseRepository;
     @Mock private SubmissionRepository submissionRepository;
 
@@ -178,8 +180,15 @@ class FileServiceTest {
                 .isPublished(false)
                 .build();
 
+        ProblemBankTestCase tc = mock(ProblemBankTestCase.class);
+        when(tc.getInput()).thenReturn("input");
+        when(tc.getExpectedOutput()).thenReturn("output");
+        when(tc.isHidden()).thenReturn(false);
+
         when(problemBankRepository.findById(request.problemBankId())).thenReturn(Optional.of(bankProblem));
         when(problemRepository.save(any(Problem.class))).thenReturn(savedProblem);
+        when(problemBankTestCaseRepository.findAllByProblemBankIdOrderByOrderNumAsc(1L))
+            .thenReturn(List.of(tc));
 
         // when
         ProblemResponse response = fileService.assignProblemFromBank(request);
@@ -188,6 +197,7 @@ class FileServiceTest {
         assertThat(response.isPublished()).isFalse();
         assertThat(response.title()).isEqualTo("은행 문제");
         verify(problemRepository, times(1)).save(any(Problem.class));
+        verify(testCaseRepository, times(1)).saveAll(any(List.class));
     }
 
     @Test
@@ -257,8 +267,8 @@ class FileServiceTest {
                 .build();
 
         List<TestCaseCreateRequest> requests = List.of(
-                new TestCaseCreateRequest("input1", "output1", false, 1),
-                new TestCaseCreateRequest("input2", "output2", true, 2)
+                new TestCaseCreateRequest("input1", "output1", false),
+                new TestCaseCreateRequest("input2", "output2", true)
         );
 
         when(problemRepository.findById(problemId)).thenReturn(Optional.of(problem));
@@ -304,6 +314,7 @@ class FileServiceTest {
         Submission existing = Submission.builder()
                 .problemId(1L)
                 .userId(1L)
+                .userIdRef(1L)
                 .build();
 
         when(submissionRepository.findByProblemIdAndUserId(1L, 1L))
@@ -326,6 +337,7 @@ class FileServiceTest {
         Submission submission = Submission.builder()
                 .problemId(problemId)
                 .userId(userId)
+                .userIdRef(userId)
                 .savedCode("// 코드")
                 .status("DRAFT")
                 .build();
@@ -365,6 +377,7 @@ class FileServiceTest {
         Submission submission = Submission.builder()
                 .problemId(problemId)
                 .userId(userId)
+                .userIdRef(userId)
                 .submittedCode("// 제출 코드")
                 .status("DRAFT")
                 .build();
@@ -393,6 +406,7 @@ class FileServiceTest {
         Submission submission = Submission.builder()
                 .problemId(problemId)
                 .userId(userId)
+                .userIdRef(userId)
                 .savedCode("// 기존 코드")
                 .build();
 
