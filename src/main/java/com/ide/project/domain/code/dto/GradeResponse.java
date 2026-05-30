@@ -9,7 +9,6 @@ public record GradeResponse(
     List<TestCaseResult> results
 ) {
     public record TestCaseResult(
-        int orderNum,
         boolean passed,
         String input,
         String expectedOutput,

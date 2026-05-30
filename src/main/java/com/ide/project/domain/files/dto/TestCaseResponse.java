@@ -4,18 +4,16 @@ import com.ide.project.domain.files.entity.TestCase;
 
 public record TestCaseResponse(
     Long id,
-    String input,
-    String expectedOutput,
-    boolean isHidden,
-    int orderNum
+    String inputCase,
+    String outputCase,
+    boolean isExample
 ) {
     public static TestCaseResponse from(TestCase testCase) {
         return new TestCaseResponse(
             testCase.getId(),
             testCase.getInput(),
             testCase.getExpectedOutput(),
-            testCase.isHidden(),
-            testCase.getOrderNum()
+            testCase.isHidden()
         );
     }
 }

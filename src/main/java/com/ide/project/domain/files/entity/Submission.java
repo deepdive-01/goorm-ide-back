@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Table(
     name = "submissions",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uq_problem_user", columnNames = {"problem_id", "user_id"})
+        @UniqueConstraint(name = "uq_problem_user", columnNames = {"problem_id", "student_id"})
     }
 )
 @Getter
@@ -27,8 +27,11 @@ public class Submission {
     @Column(name = "problem_id", nullable = false)
     private Long problemId;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "student_id", nullable = false)
     private Long userId;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userIdRef;  // ← user_id 컬럼 추가
 
     @Column(name = "saved_code", columnDefinition = "TEXT")
     private String savedCode;
@@ -38,7 +41,7 @@ public class Submission {
 
     @Column(nullable = false, length = 20)
     @Builder.Default
-    private String status = "DRAFT"; // DRAFT, PENDING, PASS, FAIL, ERROR
+    private String status = "DRAFT";
 
     @Column(name = "execution_time_ms")
     private Integer executionTimeMs;
@@ -66,19 +69,16 @@ public class Submission {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // 코드 임시 저장 및 제출 갱신
     public void updateSubmission(String savedCode, String submittedCode, String status) {
         if (savedCode != null) this.savedCode = savedCode;
         if (submittedCode != null) this.submittedCode = submittedCode;
         if (status != null) this.status = status;
     }
 
-    // 코드 수정 (임시저장만 업데이트)
     public void updateSavedCode(String savedCode) {
         if (savedCode != null) this.savedCode = savedCode;
     }
 
-    // 제출 취소
     public void cancelSubmission() {
         if ("PENDING".equals(this.status)) {
             this.status = "DRAFT";

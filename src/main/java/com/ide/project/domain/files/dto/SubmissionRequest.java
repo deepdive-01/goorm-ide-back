@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record SubmissionRequest(
     @NotNull Long problemId,
-    @NotNull Long userId,
+    @NotNull Long studentId,
     String savedCode,
     String submittedCode,
     boolean isFinalSubmit

@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "problem_bank_testcases")
+@Table(name = "testcases")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,23 +18,18 @@ public class TestCase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_bank_id")
-    private ProblemBank problemBank;
+    @Column(name = "problem_id")
+    private Long problemId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_id")
-    private Problem problem;
+    @Column(name = "problem_bank_id")
+    private Long problemBankId;
 
-    @Column(columnDefinition = "TEXT", name = "input", nullable = false)
+    @Column(columnDefinition = "TEXT", name = "input_case", nullable = false)
     private String input;
 
-    @Column(columnDefinition = "TEXT", name = "expected_output", nullable = false)
+    @Column(columnDefinition = "TEXT", name = "output_case", nullable = false)
     private String expectedOutput;
 
-    @Column(name = "is_hidden", nullable = false)
+    @Column(name = "is_example", nullable = false)
     private boolean isHidden;
-
-    @Column(name = "order_num", nullable = false)
-    private int orderNum;
 }
