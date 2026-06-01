@@ -23,6 +23,10 @@ public enum ErrorCode {
     EXPIRED_REFRESH_TOKEN(401, "만료된 토큰입니다."),
     REVOKED_REFRESH_TOKEN(401, "이미 로그아웃된 토큰입니다."),
 
+    UNSUPPORTED_OAUTH_PROVIDER(400, "지원하지 않는 소셜 로그인입니다."),
+    OAUTH_TEMP_EXPIRED(400, "소셜 로그인 세션이 만료되었습니다. 다시 시도해주세요."),
+
+
     INACTIVE_USER(403, "비활성화된 계정입니다."),
     FORBIDDEN(403, "권한이 없습니다."),
     ACCESS_DENIED(403, "접근 권한이 없습니다."),
@@ -40,7 +44,19 @@ public enum ErrorCode {
 
     // 알림
     NOTIFICATION_NOT_FOUND(404, "알림을 찾을 수 없습니다."),
-    INVALID_NOTIFICATION_TYPE(400, "유효하지 않은 알림 타입입니다.");
+    INVALID_NOTIFICATION_TYPE(400, "유효하지 않은 알림 타입입니다."),
+
+    // 타이머
+    TIMER_ALREADY_RUNNING(400, "이미 실행 중인 타이머가 있습니다."),
+    TIMER_NOT_FOUND(404, "실행 중인 타이머가 없습니다."),
+    ROOM_NOT_FOUND(404, "워크스페이스를 찾을 수 없습니다."),
+
+    // 제출
+    QUESTION_NOT_FOUND(404, "문제를 찾을 수 없습니다."),
+
+    // 피드백
+    FEEDBACK_NOT_FOUND(404, "피드백을 찾을 수 없습니다."),
+    INVALID_LINE_RANGE(400, "라인 범위가 올바르지 않습니다.");
 
     private final int status;
     private final String message;

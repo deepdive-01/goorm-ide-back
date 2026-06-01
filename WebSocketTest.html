@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+</head>
+<body>
+    <h2>WebSocket 코드 실행 테스트</h2>
+
+    <div>
+        <label>roomId: </label>
+        <input id="roomId" value="123" />
+    </div>
+    <div>
+        <label>언어: </label>
+        <select id="language">
+            <option value="python">python</option>
+            <option value="java">java</option>
+            <option value="javascript">javascript</option>
+            <option value="cpp">cpp</option>
+        </select>
+    </div>
+    <div>
+        <label>코드: </label><br>
+        <textarea id="code" rows="5" cols="50">print("Hello World")</textarea>
+    </div>
+    <div>
+        <label>stdin: </label>
+        <input id="stdin" value="" />
+    </div>
+    <br>
+
+    <!-- 방 입장/퇴장 버튼 추가 예정 -->
+    <!-- 코드 공유 버튼 추가 예정 -->
+
+    <button onclick="connect()">연결</button>
+    <button onclick="executeCode()">코드 실행</button>
+    <button onclick="disconnect()">연결 종료</button>
+
+    <h3>결과</h3>
+    <div id="result" style="border: 1px solid black; padding: 10px; min-height: 100px;"></div>
+
+    <script>
+        let client;
+
+        function connect() {
+            client = new StompJs.Client({
+                webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+                onConnect: () => {
+                    log('연결 성공 ✅');
+
+                    const roomId = document.getElementById('roomId').value;
+
+                    // 코드 실행 결과 구독
+                    client.subscribe(`/topic/code.${roomId}.result`, (msg) => {
+                        const data = JSON.parse(msg.body);
+                        log('결과 수신: ' + JSON.stringify(data));
+                    });
+
+                    // 방 입장/퇴장 구독 추가 예정
+                    // client.subscribe(`/topic/room.${roomId}.???`, (msg) => { ... });
+
+                    // 코드 공유 구독 추가 예정
+                    // client.subscribe(`/topic/room.${roomId}.???`, (msg) => { ... });
+                },
+                onDisconnect: () => log('연결 종료'),
+                onStompError: (frame) => log('에러: ' + frame.body)
+            });
+
+            client.activate();
+        }
+
+        function executeCode() {
+            if (!client || !client.connected) {
+                log('먼저 연결해주세요');
+                return;
+            }
+
+            const roomId = document.getElementById('roomId').value;
+            const request = {
+                language: document.getElementById('language').value,
+                code: document.getElementById('code').value,
+                stdin: document.getElementById('stdin').value
+            };
+
+            log('실행 요청: ' + JSON.stringify(request));
+
+            client.publish({
+                destination: `/app/code.${roomId}.execute`,
+                body: JSON.stringify(request)
+            });
+
+            // 방 입장 publish 추가 예정
+            // client.publish({ destination: `/app/room.${roomId}.???`, body: ... });
+
+            // 코드 공유 publish 추가 예정
+            // client.publish({ destination: `/app/room.${roomId}.???`, body: ... });
+        }
+
+        function disconnect() {
+            if (client) client.deactivate();
+        }
+
+        function log(msg) {
+            const result = document.getElementById('result');
+            result.innerHTML += msg + '<br>';
+        }
+    </script>
+</body>
+</html>

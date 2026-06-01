@@ -28,7 +28,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // Webclient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
@@ -41,6 +46,11 @@ dependencies {
     // AWS S3
     implementation'io.awspring.cloud:spring-cloud-aws-starter-s3:3.1.1'
 
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 
     // JWT
