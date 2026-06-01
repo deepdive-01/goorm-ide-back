@@ -16,4 +16,10 @@ public final class RedisKeys {
 
     // 소셜 신규 유저 임시 데이터 키 - "oauth:temp:{UUID}" 형태로 사용
     public static final String OAUTH_TEMP = "oauth:temp:";
+
+    // 스페이스 세션 키 - "space:session:{sessionId}" 형태로 사용
+    public static final String SPACE_SESSION = "space:session:";
+
+    // 스페이스 참여자 목록 키 - "space:members:{spaceId}" 형태로 사용
+    public static final String SPACE_MEMBERS = "space:members:";
 }
