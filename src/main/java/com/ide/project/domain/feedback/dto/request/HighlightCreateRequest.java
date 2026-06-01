@@ -18,6 +18,12 @@ public record HighlightCreateRequest(
         @JsonProperty("end_line")
         Integer endLine,
 
+        @JsonProperty("start_char")
+        Integer startChar,
+
+        @JsonProperty("end_char")
+        Integer endChar,
+
         @Size(max = 1000)
         String content
 

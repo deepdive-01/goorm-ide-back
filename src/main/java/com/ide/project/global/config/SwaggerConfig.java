@@ -38,6 +38,5 @@ public class SwaggerConfig {
                     new Server().url("https://apicoderun-dev.leeseh0806.com").description("Dev Server"),
                     new Server().url("https://apicoderun.leeseh0806.com").description("Prod Server")
                 ));
-
     }
 }

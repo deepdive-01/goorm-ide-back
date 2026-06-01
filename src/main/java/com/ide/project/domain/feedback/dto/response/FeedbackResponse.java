@@ -23,6 +23,12 @@ public record FeedbackResponse(
         @JsonProperty("end_line")
         Integer endLine,
 
+        @JsonProperty("start_char")
+        Integer startChar,
+
+        @JsonProperty("end_char")
+        Integer endChar,
+
         String color,
 
         String content,
@@ -41,6 +47,8 @@ public record FeedbackResponse(
                 feedback.getType().name(),
                 feedback.getStartLine(),
                 feedback.getEndLine(),
+                feedback.getStartChar(),
+                feedback.getEndChar(),
                 feedback.getColor(),
                 feedback.getContent(),
                 feedback.getMentorNickname(),

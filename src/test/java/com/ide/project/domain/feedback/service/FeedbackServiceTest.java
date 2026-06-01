@@ -101,7 +101,7 @@ class FeedbackServiceTest {
     @DisplayName("start_line이 end_line보다 클 때 INVALID_LINE_RANGE 예외가 발생한다")
     void createHighlight_invalidLineRange() {
         // Given
-        HighlightCreateRequest request = new HighlightCreateRequest(SUBMISSION_ID, 10, 5, "내용");
+        HighlightCreateRequest request = new HighlightCreateRequest(SUBMISSION_ID, 10, 5, null, null, "내용");
 
         // When & Then
         assertThatThrownBy(() -> feedbackService.createHighlight(MENTOR_ID, request))
@@ -119,7 +119,7 @@ class FeedbackServiceTest {
         // Given
         given(userRepository.findById(MENTOR_ID)).willReturn(Optional.empty());
 
-        HighlightCreateRequest request = new HighlightCreateRequest(SUBMISSION_ID, 1, 5, "내용");
+        HighlightCreateRequest request = new HighlightCreateRequest(SUBMISSION_ID, 1, 5, null, null, "내용");
 
         // When & Then
         assertThatThrownBy(() -> feedbackService.createHighlight(MENTOR_ID, request))
@@ -145,12 +145,14 @@ class FeedbackServiceTest {
         given(saved.getContent()).willReturn("이 부분 개선해보세요.");
         given(saved.getStartLine()).willReturn(1);
         given(saved.getEndLine()).willReturn(5);
+        given(saved.getStartChar()).willReturn(null);
+        given(saved.getEndChar()).willReturn(null);
         given(saved.getColor()).willReturn("#32EBE1");
         given(saved.getMentorNickname()).willReturn("세현");
         given(saved.getCreatedAt()).willReturn(LocalDateTime.now());
         given(feedbackRepository.save(any(Feedback.class))).willReturn(saved);
 
-        HighlightCreateRequest request = new HighlightCreateRequest(SUBMISSION_ID, 1, 5, "이 부분 개선해보세요.");
+        HighlightCreateRequest request = new HighlightCreateRequest(SUBMISSION_ID, 1, 5, null, null, "이 부분 개선해보세요.");
 
         // When
         FeedbackResponse result = feedbackService.createHighlight(MENTOR_ID, request);
@@ -160,6 +162,43 @@ class FeedbackServiceTest {
         assertThat(result.color()).isEqualTo("#32EBE1");
         assertThat(result.startLine()).isEqualTo(1);
         assertThat(result.endLine()).isEqualTo(5);
+        assertThat(result.startChar()).isNull();
+        assertThat(result.endChar()).isNull();
+        verify(feedbackRepository).save(any(Feedback.class));
+    }
+
+    @Test
+    @DisplayName("글자 단위 범위를 포함한 하이라이트 생성 시 startChar, endChar가 저장된다")
+    void createHighlight_withCharRange_success() {
+        // Given
+        User mentor = mock(User.class);
+        given(mentor.getNickname()).willReturn("세현");
+        given(userRepository.findById(MENTOR_ID)).willReturn(Optional.of(mentor));
+
+        Feedback saved = mock(Feedback.class);
+        given(saved.getId()).willReturn(FEEDBACK_ID);
+        given(saved.getSubmissionId()).willReturn(SUBMISSION_ID);
+        given(saved.getType()).willReturn(FeedbackType.HIGHLIGHT);
+        given(saved.getContent()).willReturn("변수명이 모호합니다.");
+        given(saved.getStartLine()).willReturn(3);
+        given(saved.getEndLine()).willReturn(3);
+        given(saved.getStartChar()).willReturn(5);
+        given(saved.getEndChar()).willReturn(20);
+        given(saved.getColor()).willReturn("#32EBE1");
+        given(saved.getMentorNickname()).willReturn("세현");
+        given(saved.getCreatedAt()).willReturn(LocalDateTime.now());
+        given(feedbackRepository.save(any(Feedback.class))).willReturn(saved);
+
+        HighlightCreateRequest request = new HighlightCreateRequest(SUBMISSION_ID, 3, 3, 5, 20, "변수명이 모호합니다.");
+
+        // When
+        FeedbackResponse result = feedbackService.createHighlight(MENTOR_ID, request);
+
+        // Then
+        assertThat(result.startLine()).isEqualTo(3);
+        assertThat(result.endLine()).isEqualTo(3);
+        assertThat(result.startChar()).isEqualTo(5);
+        assertThat(result.endChar()).isEqualTo(20);
         verify(feedbackRepository).save(any(Feedback.class));
     }
 
@@ -187,6 +226,8 @@ class FeedbackServiceTest {
         given(highlight.getContent()).willReturn("라인 피드백");
         given(highlight.getStartLine()).willReturn(3);
         given(highlight.getEndLine()).willReturn(5);
+        given(highlight.getStartChar()).willReturn(null);
+        given(highlight.getEndChar()).willReturn(null);
         given(highlight.getColor()).willReturn("#32EBE1");
         given(highlight.getMentorNickname()).willReturn("세현");
         given(highlight.getCreatedAt()).willReturn(LocalDateTime.now());
