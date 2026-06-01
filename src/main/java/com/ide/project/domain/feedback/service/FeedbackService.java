@@ -58,6 +58,8 @@ public class FeedbackService {
                 .content(request.content())
                 .startLine(request.startLine())
                 .endLine(request.endLine())
+                .startChar(request.startChar())
+                .endChar(request.endChar())
                 .color(HIGHLIGHT_COLOR)
                 .build();
 

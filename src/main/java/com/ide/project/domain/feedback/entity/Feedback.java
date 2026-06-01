@@ -45,6 +45,12 @@ public class Feedback {
     @Column(name = "end_line")
     private Integer endLine;
 
+    @Column(name = "start_char")
+    private Integer startChar;
+
+    @Column(name = "end_char")
+    private Integer endChar;
+
     @Column(length = 10)
     private String color;
 
@@ -58,7 +64,7 @@ public class Feedback {
 
     @Builder
     public Feedback(Long submissionId, Long mentorId, String mentorNickname, FeedbackType type,
-                    String content, Integer startLine, Integer endLine, String color) {
+                    String content, Integer startLine, Integer endLine, Integer startChar, Integer endChar, String color) {
         this.submissionId = submissionId;
         this.mentorId = mentorId;
         this.mentorNickname = mentorNickname;
@@ -66,6 +72,8 @@ public class Feedback {
         this.content = content;
         this.startLine = startLine;
         this.endLine = endLine;
+        this.startChar = startChar;
+        this.endChar = endChar;
         this.color = color;
     }
 

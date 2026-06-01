@@ -38,7 +38,7 @@ public class FeedbackController {
                 .body(ApiResponse.success(201, "FEEDBACK_CREATED", "피드백이 등록되었습니다.", data));
     }
 
-    @Operation(summary = "하이라이트 피드백 등록", description = "멘토가 특정 라인에 하이라이트 피드백을 등록합니다.", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "하이라이트 피드백 등록", description = "멘토가 특정 라인 또는 글자 단위 범위에 하이라이트 피드백을 등록합니다. start_char, end_char는 선택 값으로, 미입력 시 라인 단위로 적용됩니다.", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/highlights")
     public ResponseEntity<ApiResponse<FeedbackResponse>> createHighlight(
             @Valid @RequestBody HighlightCreateRequest request
