@@ -28,4 +28,5 @@ public interface FileService {
     SubmissionResponse getSubmission(Long problemId, Long userId);
     void cancelSubmission(Long problemId, Long userId);
     void updateSavedCode(Long problemId, Long userId, CodeUpdateRequest request);
+    List<StudentSubmissionResponse> getStudentSubmissions(Long userId);
 }
