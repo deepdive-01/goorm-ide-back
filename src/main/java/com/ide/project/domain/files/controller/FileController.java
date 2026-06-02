@@ -140,4 +140,11 @@ public class FileController {
         fileService.updateSavedCode(problemId, userId, request);
         return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "코드가 성공적으로 수정되었습니다."));
     }
+    @Operation(summary = "학생 전체 제출 현황 조회", description = "특정 학생의 전체 제출 현황을 조회합니다.")
+    @GetMapping("/submissions/student/{userId}")
+    public ResponseEntity<ApiResponse<List<StudentSubmissionResponse>>> getStudentSubmissions(
+        @PathVariable Long userId) {
+            List<StudentSubmissionResponse> response = fileService.getStudentSubmissions(userId);
+            return ResponseEntity.ok(ApiResponse.success(200, "SUCCESS", "학생 제출 현황 조회에 성공하였습니다.", response));
+        }
 }
