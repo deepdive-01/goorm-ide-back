@@ -434,4 +434,53 @@ class FileServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("제출 정보를 찾을 수 없습니다.");
     }
+    @Test
+@DisplayName("학생 전체 제출 현황 조회 시 정상적으로 반환된다")
+void getStudentSubmissions_Success() {
+    // given
+    Long userId = 1L;
+
+    List<Submission> submissions = List.of(
+            Submission.builder()
+                    .problemId(1L)
+                    .userId(userId)
+                    .userIdRef(userId)
+                    .savedCode("// 코드1")
+                    .status("PASS")
+                    .build(),
+            Submission.builder()
+                    .problemId(2L)
+                    .userId(userId)
+                    .userIdRef(userId)
+                    .savedCode("// 코드2")
+                    .status("FAIL")
+                    .build()
+    );
+
+    when(submissionRepository.findByUserId(userId)).thenReturn(submissions);
+
+    // when
+    List<StudentSubmissionResponse> response = fileService.getStudentSubmissions(userId);
+
+    // then
+    assertThat(response).hasSize(2);
+    assertThat(response.get(0).problemId()).isEqualTo(1L);
+    assertThat(response.get(0).status()).isEqualTo("PASS");
+    assertThat(response.get(1).problemId()).isEqualTo(2L);
+    assertThat(response.get(1).status()).isEqualTo("FAIL");
+}
+
+@Test
+@DisplayName("학생 제출 현황이 없을 때 빈 목록을 반환한다")
+void getStudentSubmissions_Empty() {
+    // given
+    Long userId = 999L;
+    when(submissionRepository.findByUserId(userId)).thenReturn(List.of());
+
+    // when
+    List<StudentSubmissionResponse> response = fileService.getStudentSubmissions(userId);
+
+    // then
+    assertThat(response).isEmpty();
+}
 }

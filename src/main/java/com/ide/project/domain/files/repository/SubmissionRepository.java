@@ -15,6 +15,9 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     // 특정 문제의 모든 제출 조회
     List<Submission> findByProblemId(Long problemId);
 
+    // 특정 유저의 전체 제출 조회
+    List<Submission> findByUserId(Long userId);
+
     // 특정 문제의 상태별 제출 조회
     List<Submission> findByProblemIdAndStatus(Long problemId, String status);
 
